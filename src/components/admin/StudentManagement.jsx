@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-// 1. Import your custom api instance instead of raw axios
-import api from '../utils/api';
+ import axios from 'axios';
 
 const StudentManagement = () => {
     const [students, setStudents] = useState([]);
