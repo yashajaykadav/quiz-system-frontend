@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+// Ensure the base URL is captured correctly
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+// Remove trailing slash if user accidentally added one in Vercel settings
+const cleanBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+
 const api = axios.create({
-baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
+  baseURL: cleanBaseUrl ? `${cleanBaseUrl}/api` : '/api', 
   headers: {
     'Content-Type': 'application/json',
   },
@@ -23,9 +28,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle session expiry
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Use replace to prevent back-button loops
+      window.location.replace('/login');
     }
     return Promise.reject(error);
   }
