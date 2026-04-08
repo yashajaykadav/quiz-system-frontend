@@ -56,6 +56,9 @@ const fetchTopics = async (subjectId) => {
       setTopics(res.data || []);
     } catch (err) {
       console.error("Topic Fetch Error:", err.response || err); // DEBUG 3
+      console.error("Topic Fetch Error Status:", err.response?.status);
+    console.error("Backend Error Message:", err.response?.data);
+    showToast('Failed to load topics', 'error');
       showToast('Failed to load topics', 'error');
     }
   };
