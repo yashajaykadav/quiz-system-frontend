@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
- import axios from 'axios';
+// Correct relative path based on: src/components/admin/ -> src/api/axios
+import api from '../../api/axios'; 
 
 const StudentManagement = () => {
     const [students, setStudents] = useState([]);
@@ -15,15 +16,14 @@ const StudentManagement = () => {
     // ✅ FETCH STUDENTS
     const fetchStudents = async () => {
         try {
-            // No need for full URL or headers, 'api' handles it!
+            setLoading(true);
             const res = await api.get('/admin/students');
-
-            console.log("API RESPONSE:", res.data);
+            // Support both SQL 'id' and MongoDB '_id'
             setStudents(Array.isArray(res.data) ? res.data : []);
-            setLoading(false);
         } catch (err) {
             console.error("Error fetching students", err);
             setStudents([]);
+        } finally {
             setLoading(false);
         }
     };
@@ -36,43 +36,39 @@ const StudentManagement = () => {
     const handleAddStudent = async (e) => {
         e.preventDefault();
         try {
-            // 'api' uses the Railway URL and attaches the token automatically
             await api.post('/admin/students', newStudent);
-
             setShowAddModal(false);
             fetchStudents();
             setNewStudent({ fullName: '', username: '', email: '', password: '' });
-            alert("Student added successfully!");
+            alert("Student registered successfully!");
         } catch (err) {
-            console.error(err);
             alert("Error adding student: " + (err.response?.data?.message || "Server Error"));
         }
     };
 
     // ✅ RESET PASSWORD
-    const handleResetPassword = async (id) => {
+    const handleResetPassword = async (studentId) => {
         const newPass = prompt("Enter new password for student:");
         if (!newPass) return;
 
         try {
-            await api.patch(`/admin/students/${id}/reset-password`, newPass, {
+            // Note: If your Spring Boot backend expects a JSON object, 
+            // use: { password: newPass } instead of just newPass.
+            await api.patch(`/admin/students/${studentId}/reset-password`, newPass, {
                 headers: { 'Content-Type': 'text/plain' }
             });
-
             alert("Password updated successfully!");
         } catch (err) {
-            console.error(err);
-            alert("Failed to reset password");
+            alert("Failed to reset password. Check if backend expects JSON instead of plain text.");
         }
     };
 
     // ✅ TOGGLE STATUS
-    const handleToggleStatus = async (id) => {
+    const handleToggleStatus = async (studentId) => {
         try {
-            await api.patch(`/admin/students/${id}/toggle-status`);
+            await api.patch(`/admin/students/${studentId}/toggle-status`);
             fetchStudents();
         } catch (err) {
-            console.error(err);
             alert("Failed to update status");
         }
     };
@@ -93,58 +89,53 @@ const StudentManagement = () => {
             {/* TABLE */}
             <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
                 {loading ? (
-                    <div className="p-6 text-center">Loading students...</div>
+                    <div className="p-10 text-center text-slate-500 animate-pulse">Loading directory...</div>
                 ) : (
                     <table className="w-full text-left">
                         <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
                                 <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase">Full Name</th>
-                                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase">Username / Email</th>
+                                <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase">Account Details</th>
                                 <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase">Status</th>
                                 <th className="px-6 py-4 text-sm font-bold text-slate-500 uppercase text-right">Actions</th>
                             </tr>
                         </thead>
 
                         <tbody className="divide-y divide-slate-100">
-                            {Array.isArray(students) && students.length > 0 ? (
-                                students.map(student => (
-                                    <tr key={student.id} className="hover:bg-slate-50/50 transition">
-                                        <td className="px-6 py-4 font-semibold text-slate-900">
-                                            {student.fullName}
-                                        </td>
-
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm text-slate-900">{student.username}</div>
-                                            <div className="text-xs text-slate-400">{student.email}</div>
-                                        </td>
-
-                                        <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => handleToggleStatus(student.id)}
-                                                className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${student.active
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-red-100 text-red-700'
+                            {students.length > 0 ? (
+                                students.map(student => {
+                                    const sId = student.id || student._id;
+                                    return (
+                                        <tr key={sId} className="hover:bg-slate-50/50 transition">
+                                            <td className="px-6 py-4 font-semibold text-slate-900">{student.fullName}</td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-sm text-slate-900">{student.username}</div>
+                                                <div className="text-xs text-slate-400">{student.email}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => handleToggleStatus(sId)}
+                                                    className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase transition-colors ${
+                                                        student.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                                                     }`}
-                                            >
-                                                {student.active ? 'Active' : 'Blocked'}
-                                            </button>
-                                        </td>
-
-                                        <td className="px-6 py-4 text-right space-x-4">
-                                            <button
-                                                onClick={() => handleResetPassword(student.id)}
-                                                className="text-blue-600 font-bold text-sm hover:text-blue-800"
-                                            >
-                                                Reset Password
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
+                                                >
+                                                    {student.active ? 'Active' : 'Blocked'}
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button
+                                                    onClick={() => handleResetPassword(sId)}
+                                                    className="text-blue-600 font-bold text-sm hover:text-blue-800"
+                                                >
+                                                    Reset Password
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="text-center py-6 text-slate-400">
-                                        No students found
-                                    </td>
+                                    <td colSpan="4" className="text-center py-10 text-slate-400">No students found.</td>
                                 </tr>
                             )}
                         </tbody>
@@ -152,59 +143,57 @@ const StudentManagement = () => {
                 )}
             </div>
 
-            {/* MODAL */}
+            {/* ADD STUDENT MODAL */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <form
                         onSubmit={handleAddStudent}
                         className="bg-white p-8 rounded-[2rem] shadow-xl w-full max-w-md space-y-4"
                     >
-                        <h3 className="text-xl font-black">Register New Student</h3>
-
+                        <h3 className="text-xl font-black mb-2">Register New Student</h3>
                         <input
                             type="text"
                             placeholder="Full Name"
                             required
-                            className="w-full p-3 border rounded-xl"
+                            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                            value={newStudent.fullName}
                             onChange={e => setNewStudent({ ...newStudent, fullName: e.target.value })}
                         />
-
                         <input
                             type="text"
                             placeholder="Username"
                             required
-                            className="w-full p-3 border rounded-xl"
+                            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                            value={newStudent.username}
                             onChange={e => setNewStudent({ ...newStudent, username: e.target.value })}
                         />
-
                         <input
                             type="email"
                             placeholder="Email"
                             required
-                            className="w-full p-3 border rounded-xl"
+                            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                            value={newStudent.email}
                             onChange={e => setNewStudent({ ...newStudent, email: e.target.value })}
                         />
-
                         <input
                             type="password"
                             placeholder="Initial Password"
                             required
-                            className="w-full p-3 border rounded-xl"
+                            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                            value={newStudent.password}
                             onChange={e => setNewStudent({ ...newStudent, password: e.target.value })}
                         />
-
                         <div className="flex gap-2 pt-4">
                             <button
                                 type="button"
                                 onClick={() => setShowAddModal(false)}
-                                className="flex-1 py-3 font-bold text-slate-500"
+                                className="flex-1 py-3 font-bold text-slate-500 hover:bg-slate-50 rounded-xl"
                             >
                                 Cancel
                             </button>
-
                             <button
                                 type="submit"
-                                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold"
+                                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200"
                             >
                                 Save Student
                             </button>
