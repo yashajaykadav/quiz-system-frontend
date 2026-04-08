@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_BASE = 'http://localhost:8081';
+// 1. Import your custom api instance instead of raw axios
+import api from '../utils/api';
 
 const StudentManagement = () => {
     const [students, setStudents] = useState([]);
@@ -14,23 +13,13 @@ const StudentManagement = () => {
         password: ''
     });
 
-    // ✅ Get token once
-    const getAuthHeader = () => {
-        const token = localStorage.getItem("token");
-        return {
-            Authorization: `Bearer ${token}`
-        };
-    };
-
     // ✅ FETCH STUDENTS
     const fetchStudents = async () => {
         try {
-            const res = await axios.get(`${API_BASE}/api/admin/students`, {
-                headers: getAuthHeader()
-            });
+            // No need for full URL or headers, 'api' handles it!
+            const res = await api.get('/admin/students');
 
             console.log("API RESPONSE:", res.data);
-
             setStudents(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
@@ -48,23 +37,16 @@ const StudentManagement = () => {
     const handleAddStudent = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(
-                'http://localhost:8081/api/admin/students',
-                newStudent,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    }
-                }
-            );
+            // 'api' uses the Railway URL and attaches the token automatically
+            await api.post('/admin/students', newStudent);
 
             setShowAddModal(false);
             fetchStudents();
             setNewStudent({ fullName: '', username: '', email: '', password: '' });
-
+            alert("Student added successfully!");
         } catch (err) {
             console.error(err);
-            alert("Error adding student");
+            alert("Error adding student: " + (err.response?.data?.message || "Server Error"));
         }
     };
 
@@ -74,16 +56,9 @@ const StudentManagement = () => {
         if (!newPass) return;
 
         try {
-            await axios.patch(
-                `${API_BASE}/api/admin/students/${id}/reset-password`,
-                newPass,
-                {
-                    headers: {
-                        'Content-Type': 'text/plain',
-                        ...getAuthHeader()
-                    }
-                }
-            );
+            await api.patch(`/admin/students/${id}/reset-password`, newPass, {
+                headers: { 'Content-Type': 'text/plain' }
+            });
 
             alert("Password updated successfully!");
         } catch (err) {
@@ -95,14 +70,7 @@ const StudentManagement = () => {
     // ✅ TOGGLE STATUS
     const handleToggleStatus = async (id) => {
         try {
-            await axios.patch(
-                `${API_BASE}/api/admin/students/${id}/toggle-status`,
-                {},
-                {
-                    headers: getAuthHeader()
-                }
-            );
-
+            await api.patch(`/admin/students/${id}/toggle-status`);
             fetchStudents();
         } catch (err) {
             console.error(err);
