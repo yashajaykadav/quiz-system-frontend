@@ -106,7 +106,7 @@ const TopicForm = () => {
           <div key={topic.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
             <div>
               <h4 className="font-semibold">{topic.name}</h4>
-              <p className="text-sm text-gray-600">Subject: {topic.subject.name}</p>
+              <p className="text-sm text-gray-600">Subject: {topic.subjectName}</p>
               <p className="text-gray-600 text-sm">{topic.description}</p>
             </div>
             <button onClick={() => handleDelete(topic.id)} className="text-red-600 hover:text-red-800">

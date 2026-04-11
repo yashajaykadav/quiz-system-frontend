@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import { studentApi } from '../api/studentApi';
-import { Calendar, Clock, Award, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Award, ChevronRight, CheckCircle } from 'lucide-react';
 
 const StudentDashboard = () => {
   const [quizzes, setQuizzes] = useState([]);
+  const [completedQuizIds, setCompletedQuizIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
 
   const [toast, setToast] = useState({
@@ -17,7 +18,7 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTodayQuizzes();
+    fetchDashboardData();
   }, []);
 
   const showToast = (message, type = 'error') => {
@@ -28,18 +29,33 @@ const StudentDashboard = () => {
     }, 3000);
   };
 
-  const fetchTodayQuizzes = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const response = await studentApi.getTodayQuizzes();
-      setQuizzes(response.data || []);
+      const [quizzesRes, performanceRes] = await Promise.all([
+        studentApi.getTodayQuizzes(),
+        studentApi.getOverallPerformance()
+      ]);
+      
+      setQuizzes(quizzesRes.data || []);
+      
+      const results = performanceRes.data?.results || [];
+      const completedIds = new Set(
+        results.filter(r => r.status === 'COMPLETED').map(r => r.quizId)
+      );
+      setCompletedQuizIds(completedIds);
+
     } catch (error) {
-      showToast('Failed to fetch quizzes', 'error');
+      showToast('Failed to fetch dashboard data', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   const startQuiz = (quiz) => {
+    if (completedQuizIds.has(quiz.id)) {
+      showToast('You have already completed this test', 'error');
+      return;
+    }
     if (!isQuizAvailable(quiz)) {
       showToast('Quiz not available right now', 'error');
       return;
@@ -56,6 +72,7 @@ const StudentDashboard = () => {
   };
 
   const getStatus = (quiz) => {
+    if (completedQuizIds.has(quiz.id)) return 'COMPLETED';
     const now = new Date();
     const quizTime = new Date(quiz.scheduledDate);
 
@@ -116,24 +133,25 @@ const StudentDashboard = () => {
             {quizzes.map((quiz) => {
               const status = getStatus(quiz);
               const available = isQuizAvailable(quiz);
+              const isCompleted = completedQuizIds.has(quiz.id);
+
+              let statusClasses = 'bg-yellow-100 text-yellow-700';
+              if (status === 'AVAILABLE') statusClasses = 'bg-green-100 text-green-700';
+              if (status === 'COMPLETED') statusClasses = 'bg-blue-100 text-blue-700';
 
               return (
                 <div
                   key={quiz.id}
-                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition"
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition flex flex-col"
                 >
                   {/* HEADER */}
                   <div className="flex justify-between mb-4">
-                    <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-lg font-bold">
+                    <span className="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-lg font-bold">
                       {quiz.subjectName}
                     </span>
 
                     <span
-                      className={`text-xs px-3 py-1 rounded-lg font-bold
-                        ${status === 'AVAILABLE'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-yellow-100 text-yellow-700'}
-                      `}
+                      className={`text-xs px-3 py-1 rounded-lg font-bold ${statusClasses}`}
                     >
                       {status}
                     </span>
@@ -144,7 +162,7 @@ const StudentDashboard = () => {
                     {quiz.title}
                   </h3>
 
-                  <p className="text-gray-500 mb-4 text-sm">
+                  <p className="text-gray-500 mb-4 text-sm mix-blend-multiply flex-grow">
                     {quiz.description}
                   </p>
 
@@ -168,7 +186,7 @@ const StudentDashboard = () => {
                     <div>
                       <span className="text-gray-400">Time</span>
                       <div className="font-semibold">
-                        {new Date(quiz.scheduledDate).toLocaleTimeString()}
+                        {new Date(quiz.scheduledDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </div>
                     </div>
                   </div>
@@ -176,15 +194,28 @@ const StudentDashboard = () => {
                   {/* BUTTON */}
                   <button
                     onClick={() => startQuiz(quiz)}
-                    disabled={!available}
-                    className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition
-                      ${available
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'}
+                    disabled={!available || isCompleted}
+                    className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition mt-auto
+                      ${isCompleted 
+                        ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-not-allowed'
+                        : available
+                          ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-200'
+                          : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
                     `}
                   >
-                    {available ? 'Start Quiz' : 'Not Available'}
-                    <ChevronRight size={16} />
+                    {isCompleted ? (
+                      <>
+                        <CheckCircle size={18} />
+                        Completed Test
+                      </>
+                    ) : available ? (
+                      <>
+                        Start Quiz
+                        <ChevronRight size={18} />
+                      </>
+                    ) : (
+                      'Not Available Yet'
+                    )}
                   </button>
                 </div>
               );

@@ -287,7 +287,7 @@ const QuizForm = () => {
               <h4 className="font-bold text-lg">{quiz.title}</h4>
 
               <div className="text-sm text-gray-600 mt-1">
-                📘 {quiz.subject?.name} | 📚 {quiz.topic?.name}
+                📘 {quiz.subjectName} | 📚 {quiz.topicName}
               </div>
 
               <div className="text-sm text-gray-600">
@@ -299,7 +299,7 @@ const QuizForm = () => {
               </div>
 
               <div className="text-sm mt-2 font-medium">
-                Questions: {quiz.questions?.length}
+                Questions: {quiz.totalQuestions}
               </div>
             </div>
           ))}

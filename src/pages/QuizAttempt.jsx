@@ -29,7 +29,11 @@ const QuizAttempt = () => {
     attemptRef.current = attempt;
   }, [attempt]);
 
+  const fetchedRef = useRef(false);
+
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
     startQuiz();
   }, [quizId]);
 
@@ -69,15 +73,16 @@ const QuizAttempt = () => {
       setAttempt(attemptData);
       setWarningCount(attemptData.warningCount || 0);
 
-      // Capture display info from the raw entity (startQuiz returns raw QuizAttempt)
-      if (attemptData.quiz) {
+      // Capture display info from the flat DTO (startQuiz now returns QuizAttemptResponse)
+      if (attemptData) {
         setQuizMeta({
-          title: attemptData.quiz.title,
-          subjectName: attemptData.quiz.subject?.name,
-          topicName: attemptData.quiz.topic?.name,
-          durationMinutes: attemptData.quiz.durationMinutes,
+          title: attemptData.quizTitle,
+          subjectName: attemptData.subjectName,
+          topicName: attemptData.topicName,
+          durationMinutes: attemptData.durationMinutes,
         });
       }
+
 
       // Load student answers — each answer contains the full question object
       const answersResponse = await studentApi.getAttemptAnswers(attemptData.id);
