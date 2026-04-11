@@ -120,194 +120,199 @@ const QuizForm = () => {
   };
 
   return (
-    <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="p-8 bg-[#eef2ff] min-h-screen font-sans text-black">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-      {/* FORM */}
-      <div className="lg:col-span-2 bg-white border rounded shadow-sm p-6">
-        <h2 className="text-xl font-semibold mb-5">Create Quiz</h2>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-
-          {/* BASIC INFO */}
-          <div>
-            <h3 className="font-medium mb-2">Basic Info</h3>
-
-            <input
-              type="text"
-              placeholder="Quiz Title"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="w-full p-2 border rounded mb-3"
-              required
-            />
-
-            <textarea
-              placeholder="Description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="w-full p-2 border rounded"
-            />
+        {/* MAIN FORM COLUMN */}
+        <div className="lg:col-span-2 bg-white border-4 border-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+          <div className="mb-10">
+            <h2 className="text-4xl font-black uppercase tracking-tighter italic">
+              Create <span className="text-[#3b82f6]">New Quiz</span>
+            </h2>
+            <div className="h-2 w-24 bg-black mt-1"></div>
           </div>
 
-          {/* SUBJECT + TOPIC */}
-          <div className="grid grid-cols-2 gap-4">
-            <select
-              value={formData.subjectId}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  subjectId: e.target.value,
-                  topicId: '',
-                  questionIds: [],
-                })
-              }
-              className="p-2 border rounded"
-              required
-            >
-              <option value="">Select Subject</option>
-              {subjects.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
+          <form onSubmit={handleSubmit} className="space-y-10">
 
-            <select
-              value={formData.topicId}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  topicId: e.target.value,
-                  questionIds: [],
-                })
-              }
-              className="p-2 border rounded"
-              disabled={!formData.subjectId}
-              required
-            >
-              <option value="">Select Topic</option>
-              {topics.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-          </div>
+            {/* SECTION 1: IDENTITY */}
+            <section className="space-y-5">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="bg-black text-white px-2 py-0.5 text-[10px] font-black uppercase italic">01</span>
+                <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Identity & Scope</h3>
+              </div>
 
-          {/* TIME + DATE */}
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="number"
-              value={formData.durationMinutes}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  durationMinutes: parseInt(e.target.value),
-                })
-              }
-              className="p-2 border rounded"
-              min="1"
-              placeholder="Duration (minutes)"
-              required
-            />
+              <input
+                type="text"
+                placeholder="QUIZ_TITLE_HERE"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full p-4 border-2 border-black bg-[#f8fafc] font-black focus:outline-none focus:bg-[#dbeafe] transition-colors rounded-none placeholder:text-gray-300"
+                required
+              />
 
-            <input
-              type="datetime-local"
-              value={formData.scheduledDate}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  scheduledDate: e.target.value,
-                })
-              }
-              className="p-2 border rounded"
-              required
-            />
-          </div>
+              <textarea
+                placeholder="Detailed assessment parameters..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full p-4 border-2 border-black font-bold focus:outline-none focus:bg-[#dbeafe] transition-colors rounded-none h-24"
+              />
+            </section>
 
-          {/* QUESTIONS */}
-          {questions.length > 0 && (
-            <div>
-              <h3 className="font-medium mb-2">
-                Questions ({formData.questionIds.length} selected)
-              </h3>
+            {/* SECTION 2: CLASSIFICATION */}
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <span className="bg-black text-white px-2 py-0.5 text-[10px] font-black uppercase italic">02</span>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Classification</h3>
+                </div>
+                <div className="space-y-4">
+                  <select
+                    value={formData.subjectId}
+                    onChange={(e) => setFormData({ ...formData, subjectId: e.target.value, topicId: '', questionIds: [] })}
+                    className="w-full p-3 border-2 border-black bg-white font-black uppercase text-xs focus:bg-[#dbeafe] outline-none rounded-none cursor-pointer"
+                    required
+                  >
+                    <option value="">Select Subject</option>
+                    {subjects.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
 
-              <div className="max-h-72 overflow-y-auto border rounded p-3 space-y-2">
-                {questions.map((q) => {
-                  const selected = formData.questionIds.includes(q.id);
+                  <select
+                    value={formData.topicId}
+                    onChange={(e) => setFormData({ ...formData, topicId: e.target.value, questionIds: [] })}
+                    className="w-full p-3 border-2 border-black bg-white font-black uppercase text-xs focus:bg-[#dbeafe] outline-none rounded-none disabled:opacity-30"
+                    disabled={!formData.subjectId}
+                    required
+                  >
+                    <option value="">Select Topic</option>
+                    {topics.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-                  return (
-                    <div
-                      key={q.id}
-                      onClick={() => handleQuestionToggle(q.id)}
-                      className={`p-2 border rounded cursor-pointer
-                      ${selected
-                          ? 'bg-green-100 border-green-400'
-                          : 'hover:bg-gray-50'}
-                    `}
-                    >
-                      <div className="font-medium">
-                        {q.questionText}
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <span className="bg-black text-white px-2 py-0.5 text-[10px] font-black uppercase italic">03</span>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Scheduling</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={formData.durationMinutes}
+                      onChange={(e) => setFormData({ ...formData, durationMinutes: parseInt(e.target.value) })}
+                      className="w-full p-3 border-2 border-black font-mono font-bold focus:bg-[#dbeafe] outline-none"
+                      placeholder="Duration (Min)"
+                      required
+                    />
+                    <span className="absolute right-3 top-3 text-[10px] font-black text-gray-400 uppercase">MIN</span>
+                  </div>
+
+                  <input
+                    type="datetime-local"
+                    value={formData.scheduledDate}
+                    onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+                    className="w-full p-3 border-2 border-black font-mono font-bold focus:bg-[#dbeafe] outline-none"
+                    required
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* SECTION 3: QUESTION SELECTION */}
+            {questions.length > 0 && (
+              <section className="space-y-5">
+                <div className="flex justify-between items-end">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-black text-white px-2 py-0.5 text-[10px] font-black uppercase italic">04</span>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Asset Selection</h3>
+                  </div>
+                  <div className="text-[10px] font-black bg-[#3b82f6] text-white px-2 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    {formData.questionIds.length} SELECTED
+                  </div>
+                </div>
+
+                <div className="max-h-80 overflow-y-auto border-4 border-black divide-y-2 divide-black bg-gray-50">
+                  {questions.map((q) => {
+                    const selected = formData.questionIds.includes(q.id);
+                    return (
+                      <div
+                        key={q.id}
+                        onClick={() => handleQuestionToggle(q.id)}
+                        className={`p-4 cursor-pointer transition-all flex items-start gap-4 ${selected ? 'bg-[#bbf7d0]' : 'bg-white hover:bg-[#f0f9ff]'
+                          }`}
+                      >
+                        <div className={`mt-1 w-5 h-5 border-2 border-black flex-shrink-0 flex items-center justify-center ${selected ? 'bg-black text-white' : 'bg-white'}`}>
+                          {selected && <div className="w-2 h-2 bg-white" />}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-xs font-black uppercase leading-tight">{q.questionText}</div>
+                          {q.codeSnippet && (
+                            <div className="mt-2 p-2 bg-black text-green-400 font-mono text-[10px] border border-black italic">
+                              CODE_SNIPPET_ATTACHED
+                            </div>
+                          )}
+                        </div>
                       </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
-                      {q.codeSnippet && (
-                        <pre className="text-xs bg-gray-100 p-2 mt-2 rounded overflow-x-auto">
-                          {q.codeSnippet}
-                        </pre>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-          >
-            {loading ? 'Creating...' : 'Create Quiz'}
-          </button>
-        </form>
-      </div>
-
-      {/* QUIZ LIST */}
-      <div className="bg-white border rounded shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          Existing Quizzes ({quizzes.length})
-        </h3>
-
-        <div className="space-y-3">
-          {quizzes.map((quiz) => (
-            <div
-              key={quiz.id}
-              className="p-3 border rounded hover:bg-gray-50"
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#3b82f6] text-white py-5 border-4 border-black text-lg font-black uppercase tracking-[0.3em] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all disabled:opacity-50"
             >
-              <h4 className="font-semibold">{quiz.title}</h4>
-
-              <div className="text-sm text-gray-600">
-                {quiz.subjectName} | {quiz.topicName}
-              </div>
-
-              <div className="text-sm text-gray-600">
-                Duration: {quiz.durationMinutes} mins
-              </div>
-
-              <div className="text-sm text-gray-600">
-                Date: {quiz.scheduledDate}
-              </div>
-
-              <div className="text-sm mt-1">
-                Questions: {quiz.totalQuestions}
-              </div>
-            </div>
-          ))}
+              {loading ? 'Transmitting Data...' : 'Finalize & Deploy Quiz'}
+            </button>
+          </form>
         </div>
-      </div>
 
+        {/* SIDEBAR: EXISTING QUIZZES */}
+        <div className="space-y-8">
+          <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+            <h3 className="text-xs font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-6 flex justify-between">
+              Active Repository <span>({quizzes.length})</span>
+            </h3>
+
+            <div className="space-y-4 overflow-y-auto max-h-[700px] pr-2">
+              {quizzes.map((quiz) => (
+                <div
+                  key={quiz.id}
+                  className="p-4 border-2 border-black bg-[#f8fafc] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(59,130,246,1)] transition-all cursor-default"
+                >
+                  <h4 className="font-black text-sm uppercase tracking-tight mb-2 leading-tight">
+                    {quiz.title}
+                  </h4>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-black bg-black text-white px-1 italic">SUBJECT</span>
+                      <span className="text-[10px] font-bold text-gray-500 truncate uppercase">{quiz.subjectName}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-black bg-black text-white px-1 italic">DATA_PTS</span>
+                      <span className="text-[10px] font-bold text-gray-500 uppercase">{quiz.totalQuestions} Questions</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
+                    <span className="font-mono text-[10px] font-black text-[#3b82f6]">{quiz.durationMinutes}M</span>
+                    <span className="font-mono text-[9px] font-bold text-gray-400">{quiz.scheduledDate.split('T')[0]}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
-
 export default QuizForm;
