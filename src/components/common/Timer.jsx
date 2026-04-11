@@ -3,19 +3,44 @@ import { Clock } from 'lucide-react';
 
 const Timer = ({ durationMinutes, onTimeUp }) => {
   const [timeLeft, setTimeLeft] = useState(durationMinutes * 60);
+  const [warning, setWarning] = useState('');
 
+  // ✅ Single interval (fixed)
   useEffect(() => {
-    if (timeLeft <= 0) {
-      onTimeUp();
-      return;
-    }
-
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  // ✅ Time logic
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      onTimeUp();
+    }
+
+    // 🔥 warnings
+    if (timeLeft === 300) {
+      setWarning('Only 5 minutes left!');
+    }
+
+    if (timeLeft === 60) {
+      setWarning('Last 1 minute!');
+    }
   }, [timeLeft, onTimeUp]);
+
+  // 🔥 Tab switch detection (killer feature)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        alert("Warning: Do not switch tabs during exam!");
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -27,11 +52,22 @@ const Timer = ({ durationMinutes, onTimeUp }) => {
   };
 
   return (
-    <div className={`flex items-center gap-2 text-2xl font-bold ${getColorClass()}`}>
-      <Clock size={28} />
-      <span>
-        {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-      </span>
+    <div>
+      {/* Timer */}
+      <div className={`flex items-center gap-2 text-xl font-semibold ${getColorClass()}`}>
+        <Clock size={24} />
+        <span>
+          {String(minutes).padStart(2, '0')}:
+          {String(seconds).padStart(2, '0')}
+        </span>
+      </div>
+
+      {/* Warning */}
+      {warning && (
+        <p className="text-sm text-red-500 mt-1">
+          {warning}
+        </p>
+      )}
     </div>
   );
 };

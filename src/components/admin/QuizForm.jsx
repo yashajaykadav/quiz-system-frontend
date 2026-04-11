@@ -123,14 +123,14 @@ const QuizForm = () => {
     <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       {/* FORM */}
-      <div className="lg:col-span-2 bg-white shadow-xl rounded-2xl p-6">
-        <h2 className="text-2xl font-bold mb-6">🎯 Create Quiz</h2>
+      <div className="lg:col-span-2 bg-white border rounded shadow-sm p-6">
+        <h2 className="text-xl font-semibold mb-5">Create Quiz</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
 
           {/* BASIC INFO */}
           <div>
-            <h3 className="font-semibold mb-2">Basic Info</h3>
+            <h3 className="font-medium mb-2">Basic Info</h3>
 
             <input
               type="text"
@@ -139,7 +139,7 @@ const QuizForm = () => {
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              className="w-full p-3 border rounded-lg mb-3"
+              className="w-full p-2 border rounded mb-3"
               required
             />
 
@@ -149,7 +149,7 @@ const QuizForm = () => {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-2 border rounded"
             />
           </div>
 
@@ -165,7 +165,7 @@ const QuizForm = () => {
                   questionIds: [],
                 })
               }
-              className="p-3 border rounded-lg"
+              className="p-2 border rounded"
               required
             >
               <option value="">Select Subject</option>
@@ -183,7 +183,7 @@ const QuizForm = () => {
                   questionIds: [],
                 })
               }
-              className="p-3 border rounded-lg"
+              className="p-2 border rounded"
               disabled={!formData.subjectId}
               required
             >
@@ -205,7 +205,7 @@ const QuizForm = () => {
                   durationMinutes: parseInt(e.target.value),
                 })
               }
-              className="p-3 border rounded-lg"
+              className="p-2 border rounded"
               min="1"
               placeholder="Duration (minutes)"
               required
@@ -220,7 +220,7 @@ const QuizForm = () => {
                   scheduledDate: e.target.value,
                 })
               }
-              className="p-3 border rounded-lg"
+              className="p-2 border rounded"
               required
             />
           </div>
@@ -228,11 +228,11 @@ const QuizForm = () => {
           {/* QUESTIONS */}
           {questions.length > 0 && (
             <div>
-              <h3 className="font-semibold mb-2">
+              <h3 className="font-medium mb-2">
                 Questions ({formData.questionIds.length} selected)
               </h3>
 
-              <div className="max-h-80 overflow-y-auto border rounded-lg p-3 space-y-2">
+              <div className="max-h-72 overflow-y-auto border rounded p-3 space-y-2">
                 {questions.map((q) => {
                   const selected = formData.questionIds.includes(q.id);
 
@@ -240,11 +240,11 @@ const QuizForm = () => {
                     <div
                       key={q.id}
                       onClick={() => handleQuestionToggle(q.id)}
-                      className={`p-3 rounded-lg border cursor-pointer transition
-                        ${selected
+                      className={`p-2 border rounded cursor-pointer
+                      ${selected
                           ? 'bg-green-100 border-green-400'
                           : 'hover:bg-gray-50'}
-                      `}
+                    `}
                     >
                       <div className="font-medium">
                         {q.questionText}
@@ -265,46 +265,47 @@ const QuizForm = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
           >
-            {loading ? 'Creating...' : '🚀 Create Quiz'}
+            {loading ? 'Creating...' : 'Create Quiz'}
           </button>
         </form>
       </div>
 
       {/* QUIZ LIST */}
-      <div className="bg-white shadow-xl rounded-2xl p-6">
-        <h3 className="text-xl font-semibold mb-4">
-          📊 Existing Quizzes ({quizzes.length})
+      <div className="bg-white border rounded shadow-sm p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          Existing Quizzes ({quizzes.length})
         </h3>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {quizzes.map((quiz) => (
             <div
               key={quiz.id}
-              className="p-4 border rounded-xl hover:shadow-md transition"
+              className="p-3 border rounded hover:bg-gray-50"
             >
-              <h4 className="font-bold text-lg">{quiz.title}</h4>
+              <h4 className="font-semibold">{quiz.title}</h4>
 
-              <div className="text-sm text-gray-600 mt-1">
-                📘 {quiz.subjectName} | 📚 {quiz.topicName}
+              <div className="text-sm text-gray-600">
+                {quiz.subjectName} | {quiz.topicName}
               </div>
 
               <div className="text-sm text-gray-600">
-                ⏱ {quiz.durationMinutes} mins
+                Duration: {quiz.durationMinutes} mins
               </div>
 
               <div className="text-sm text-gray-600">
-                📅 {quiz.scheduledDate}
+                Date: {quiz.scheduledDate}
               </div>
 
-              <div className="text-sm mt-2 font-medium">
+              <div className="text-sm mt-1">
                 Questions: {quiz.totalQuestions}
               </div>
             </div>
           ))}
         </div>
       </div>
+
     </div>
   );
 };

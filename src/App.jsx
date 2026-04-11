@@ -3,21 +3,23 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
+import Contact from './pages/Contact';
 
-// Professional Loading Spinner Component
 const PageLoader = () => (
-  <div className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center">
-    <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-    <p className="text-slate-400 font-medium animate-pulse tracking-widest uppercase text-xs">Loading Module...</p>
+  <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="text-center">
+      <div className="w-8 h-8 border-2 border-gray-400 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+      <p className="text-sm text-gray-600">Loading...</p>
+    </div>
   </div>
 );
 
 // Lazy Loaded Components
-const AdminDashboard  = lazy(() => import('./pages/AdminDashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
 const QuizAttempt = lazy(() => import('./pages/QuizAttempt'));
 const OverallResults = lazy(() => import('./pages/OverallResults'));
-
+// Lazy loading used to improve performance by loading pages only when needed
 function App() {
   return (
     <AuthProvider>
@@ -26,6 +28,7 @@ function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* Admin Access Control */}
             <Route

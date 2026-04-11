@@ -48,7 +48,7 @@ const QuestionForm = () => {
     }
   };
 
-const fetchTopics = async (subjectId) => {
+  const fetchTopics = async (subjectId) => {
     console.log("Fetching topics for Subject ID:", subjectId); // DEBUG 1
     try {
       const res = await adminApi.getTopicsBySubject(subjectId);
@@ -57,8 +57,8 @@ const fetchTopics = async (subjectId) => {
     } catch (err) {
       console.error("Topic Fetch Error:", err.response || err); // DEBUG 3
       console.error("Topic Fetch Error Status:", err.response?.status);
-    console.error("Backend Error Message:", err.response?.data);
-    showToast('Failed to load topics', 'error');
+      console.error("Backend Error Message:", err.response?.data);
+      showToast('Failed to load topics', 'error');
       showToast('Failed to load topics', 'error');
     }
   };
@@ -111,136 +111,186 @@ const fetchTopics = async (subjectId) => {
 
   return (
     <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* TOAST NOTIFICATION */}
+
+      {/* TOAST */}
       {toast.visible && (
-        <div className={`fixed top-5 right-5 px-6 py-3 rounded-lg shadow-lg text-white z-50 transition-all ${
-          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
-        }`}>
+        <div
+          className={`fixed top-5 right-5 px-4 py-2 rounded shadow text-white text-sm ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`}
+        >
           {toast.message}
         </div>
       )}
 
-      {/* FORM SECTION */}
-      <div className="lg:col-span-2 bg-white shadow-xl rounded-2xl p-6">
-        <h2 className="text-2xl font-bold mb-6">❓ Add Question</h2>
+      {/* FORM */}
+      <div className="lg:col-span-2 bg-white border rounded shadow-sm p-6">
+        <h2 className="text-xl font-semibold mb-5">Add Question</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* SUBJECT + TOPIC */}
           <div className="grid grid-cols-2 gap-4">
             <select
               value={formData.subjectId}
-              onChange={(e) => setFormData({
-                ...formData,
-                subjectId: e.target.value,
-                topicId: '',
-              })}
-              className="p-3 border rounded-lg"
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  subjectId: e.target.value,
+                  topicId: '',
+                })
+              }
+              className="p-2 border rounded"
               required
             >
               <option value="">Select Subject</option>
               {subjects.map((s) => (
-                <option key={s.id || s._id} value={s.id || s._id}>{s.name}</option>
+                <option key={s.id || s._id} value={s.id || s._id}>
+                  {s.name}
+                </option>
               ))}
             </select>
 
             <select
               value={formData.topicId}
-              onChange={(e) => setFormData({ ...formData, topicId: e.target.value })}
-              className="p-3 border rounded-lg"
+              onChange={(e) =>
+                setFormData({ ...formData, topicId: e.target.value })
+              }
+              className="p-2 border rounded"
               disabled={!formData.subjectId}
               required
             >
               <option value="">Select Topic</option>
               {topics.map((t) => (
-                <option key={t.id || t._id} value={t.id || t._id}>{t.name}</option>
+                <option key={t.id || t._id} value={t.id || t._id}>
+                  {t.name}
+                </option>
               ))}
             </select>
           </div>
 
+          {/* QUESTION */}
           <textarea
-            placeholder="Enter question text..."
+            placeholder="Enter question"
             value={formData.questionText}
-            onChange={(e) => setFormData({ ...formData, questionText: e.target.value })}
-            className="w-full p-3 border rounded-lg"
+            onChange={(e) =>
+              setFormData({ ...formData, questionText: e.target.value })
+            }
+            className="w-full p-2 border rounded"
             rows="3"
             required
           />
 
+          {/* CODE */}
           <div>
             <textarea
-              placeholder="Optional code snippet..."
+              placeholder="Optional code snippet"
               value={formData.codeSnippet}
-              onChange={(e) => setFormData({ ...formData, codeSnippet: e.target.value })}
-              className="w-full p-3 border rounded-lg font-mono text-sm"
+              onChange={(e) =>
+                setFormData({ ...formData, codeSnippet: e.target.value })
+              }
+              className="w-full p-2 border rounded font-mono text-sm"
               rows="4"
             />
+
             {formData.codeSnippet && (
-              <pre className="bg-gray-100 p-3 mt-2 rounded text-xs overflow-x-auto">
+              <pre className="bg-gray-100 p-2 mt-2 rounded text-xs overflow-x-auto">
                 {formData.codeSnippet}
               </pre>
             )}
           </div>
 
+          {/* OPTIONS */}
           <div>
-            <h3 className="font-semibold mb-2">Options (Click to select correct answer)</h3>
-            <div className="grid grid-cols-1 gap-3">
-              {[1, 2, 3, 4].map((num) => (
-                <div
-                  key={num}
-                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                    formData.correctOption === num ? 'bg-green-100 border-green-400' : 'bg-white'
-                  }`}
-                  onClick={() => setFormData({ ...formData, correctOption: num })}
-                >
-                  <input
-                    type="radio"
-                    checked={formData.correctOption === num}
-                    onChange={() => {}} // Handled by div onClick
-                  />
-                  <input
-                    type="text"
-                    placeholder={`Option ${num}`}
-                    value={formData[`option${num}`]}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      [`option${num}`]: e.target.value,
-                    })}
-                    className="w-full p-2 border rounded"
-                    required
-                    onClick={(e) => e.stopPropagation()} // Prevent radio trigger when typing
-                  />
-                </div>
-              ))}
+            <h3 className="font-medium mb-2">
+              Options (select correct answer)
+            </h3>
+
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map((num) => {
+                const selected = formData.correctOption === num;
+
+                return (
+                  <div
+                    key={num}
+                    onClick={() =>
+                      setFormData({ ...formData, correctOption: num })
+                    }
+                    className={`flex items-center gap-2 p-2 border rounded cursor-pointer ${selected ? 'bg-green-100 border-green-400' : ''
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      checked={selected}
+                      readOnly
+                    />
+
+                    <input
+                      type="text"
+                      placeholder={`Option ${num}`}
+                      value={formData[`option${num}`]}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [`option${num}`]: e.target.value,
+                        })
+                      }
+                      className="w-full p-1 border rounded"
+                      required
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
+          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-lg text-white font-bold transition-all ${
-              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
+            className={`w-full py-2 rounded text-white ${loading
+              ? 'bg-gray-400'
+              : 'bg-blue-500 hover:bg-blue-600'
+              }`}
           >
-            {loading ? 'Processing...' : '➕ Add Question'}
+            {loading ? 'Processing...' : 'Add Question'}
           </button>
+
         </form>
       </div>
 
-      {/* LIST SECTION */}
-      <div className="bg-white shadow-xl rounded-2xl p-6">
-        <h3 className="text-xl font-semibold mb-4">📊 Recent Questions ({questions.length})</h3>
-        <div className="max-h-[600px] overflow-y-auto space-y-3 pr-2">
+      {/* LIST */}
+      <div className="bg-white border rounded shadow-sm p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          Recent Questions ({questions.length})
+        </h3>
+
+        <div className="max-h-[500px] overflow-y-auto space-y-2">
           {questions.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No questions found.</p>
+            <p className="text-gray-500 text-center py-4">
+              No questions found
+            </p>
           ) : (
             questions.map((q) => (
-              <div key={q.id || q._id} className="p-3 border rounded-lg bg-gray-50">
-                <div className="font-medium text-sm line-clamp-2">{q.questionText}</div>
-                {q.codeSnippet && <div className="text-[10px] text-blue-600 mt-1">Has code snippet</div>}
+              <div
+                key={q.id || q._id}
+                className="p-2 border rounded bg-gray-50"
+              >
+                <div className="text-sm font-medium line-clamp-2">
+                  {q.questionText}
+                </div>
+
+                {q.codeSnippet && (
+                  <div className="text-xs text-blue-600 mt-1">
+                    Code snippet included
+                  </div>
+                )}
               </div>
             ))
           )}
         </div>
       </div>
+
     </div>
   );
 };

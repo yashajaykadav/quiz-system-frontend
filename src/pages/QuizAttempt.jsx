@@ -197,22 +197,22 @@ const QuizAttempt = () => {
 
   if (!attempt || !questions || questions.length === 0) {
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col">
-            <Navbar />
-            <div className="flex-1 flex items-center justify-center p-4">
-                <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md w-full">
-                    <div className="text-red-500 mb-4 text-5xl">⚠️</div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">No Questions Found</h2>
-                    <p className="text-gray-600 mb-6">This quiz doesn't have any questions or failed to load. Please contact your administrator.</p>
-                    <button 
-                        onClick={() => navigate('/student')}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                    >
-                        Go Back to Dashboard
-                    </button>
-                </div>
-            </div>
+      <div className="min-h-screen bg-gray-100 flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md w-full">
+            <div className="text-red-500 mb-4 text-5xl">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">No Questions Found</h2>
+            <p className="text-gray-600 mb-6">This quiz doesn't have any questions or failed to load. Please contact your administrator.</p>
+            <button
+              onClick={() => navigate('/student')}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            >
+              Go Back to Dashboard
+            </button>
+          </div>
         </div>
+      </div>
     );
   }
 
@@ -230,7 +230,7 @@ const QuizAttempt = () => {
           <div className={`relative w-full max-w-md mx-4 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ${autoSubmitted ? 'bg-red-600' : 'bg-white'}`}>
             {/* Decorative top bar */}
             <div className={`h-2 w-full ${autoSubmitted ? 'bg-red-800' : 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-500'}`}></div>
-            
+
             <div className="p-10 text-center">
               {autoSubmitted ? (
                 <>
@@ -265,8 +265,8 @@ const QuizAttempt = () => {
                     {Array.from({ length: MAX_WARNINGS }).map((_, i) => (
                       <div key={i} className="flex flex-col items-center gap-1.5">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border-2 transition-all duration-500
-                          ${i < warningCount 
-                            ? 'bg-red-500 text-white border-red-600 scale-110' 
+                          ${i < warningCount
+                            ? 'bg-red-500 text-white border-red-600 scale-110'
                             : 'bg-slate-100 text-slate-400 border-slate-200'}`}
                         >
                           {i + 1}
@@ -308,9 +308,9 @@ const QuizAttempt = () => {
         </div>
       )}
 
-      <div className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+      <div className="flex-1 w-full px-6 py-6">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="bg-white border border-gray-200 p-5 mb-6 flex flex-wrap justify-between items-center gap-4 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200 uppercase font-black">
               {quizMeta?.subjectName?.charAt(0) || 'Q'}
@@ -329,10 +329,10 @@ const QuizAttempt = () => {
               </h1>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-6">
-             <div className="h-10 w-[1px] bg-slate-200 hidden md:block"></div>
-             <Timer
+            <div className="h-10 w-[1px] bg-slate-200 hidden md:block"></div>
+            <Timer
               durationMinutes={quizMeta?.durationMinutes}
               onTimeUp={handleTimeUp}
             />
@@ -342,16 +342,16 @@ const QuizAttempt = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Main Question Area */}
           <div className="lg:col-span-8 flex flex-col gap-6">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+            <div className="bg-white border border-gray-200">
               {/* Question Progress Bar */}
               <div className="h-1.5 w-full bg-slate-100">
-                <div 
-                  className="h-full bg-blue-600 transition-all duration-500 ease-out" 
+                <div
+                  className="h-full bg-blue-600 transition-all duration-500 ease-out"
                   style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
                 ></div>
               </div>
 
-              <div className="p-8 md:p-10">
+              <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                     Question {currentQuestionIndex + 1} of {questions.length}
@@ -383,28 +383,23 @@ const QuizAttempt = () => {
                       <button
                         key={optionNum}
                         onClick={() => handleAnswerSelect(optionNum)}
-                        className={`group relative flex items-center p-5 rounded-2xl border-2 transition-all duration-300 transform active:scale-[0.98] text-left
-                          ${isSelected 
-                            ? 'border-blue-600 bg-blue-50/50 shadow-md translate-x-1' 
-                            : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50'}`}
+                        className={`flex items-center gap-4 p-4 border transition
+    ${isSelected
+                            ? 'border-blue-600 bg-blue-50'
+                            : 'border-gray-200 hover:bg-gray-50'}
+  `}
                       >
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm mr-5 transition-colors
-                          ${isSelected 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'}`}>
+                        <div className={`w-8 h-8 flex items-center justify-center font-bold border
+    ${isSelected
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-gray-100 text-gray-600'}
+  `}>
                           {String.fromCharCode(64 + optionNum)}
                         </div>
-                        <span className={`flex-1 font-semibold transition-colors
-                          ${isSelected ? 'text-blue-950' : 'text-slate-700'}`}>
+
+                        <span className="font-medium text-gray-800">
                           {currentQuestion[`option${optionNum}`]}
                         </span>
-                        {isSelected && (
-                          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                        )}
                       </button>
                     );
                   })}
@@ -445,11 +440,11 @@ const QuizAttempt = () => {
 
           {/* Navigation Sidebar */}
           <div className="lg:col-span-4 flex flex-col gap-6">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+            <div className="bg-white border border-gray-200 p-5">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-lg font-extrabold text-slate-800">Quick Navigation</h3>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter bg-slate-50 px-2 py-1 rounded">
-                   {questions.length} Questions
+                  {questions.length} Questions
                 </span>
               </div>
 
@@ -458,14 +453,14 @@ const QuizAttempt = () => {
                 {Array.from({ length: Math.ceil(questions.length / 4) }).map((_, groupIndex) => (
                   <div key={groupIndex} className="space-y-3">
                     <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] ml-2">
-                       Questions {groupIndex * 4 + 1} - {Math.min((groupIndex + 1) * 4, questions.length)}
+                      Questions {groupIndex * 4 + 1} - {Math.min((groupIndex + 1) * 4, questions.length)}
                     </span>
                     <div className="grid grid-cols-4 gap-3">
                       {questions.slice(groupIndex * 4, (groupIndex + 1) * 4).map((_, i) => {
                         const index = groupIndex * 4 + i;
                         const status = getQuestionStatus(index);
                         const isCurrent = index === currentQuestionIndex;
-                        
+
                         let colorClasses = "";
                         if (status === 'current') colorClasses = "bg-amber-500 text-white shadow-amber-100 ring-4 ring-amber-100";
                         else if (status === 'attempted') colorClasses = "bg-green-500 text-white shadow-green-100";
@@ -515,22 +510,22 @@ const QuizAttempt = () => {
 
             {/* Exam Rules Card */}
             <div className={`rounded-3xl p-6 shadow-xl ${warningCount >= 2 ? 'bg-gradient-to-br from-red-600 to-red-700 shadow-red-100' : 'bg-gradient-to-br from-blue-600 to-indigo-700 shadow-blue-100'} text-white`}>
-               <h4 className="font-black text-lg mb-2 flex items-center gap-2">
-                 <ShieldAlert size={20} />
-                 Exam Rules
-               </h4>
-               <ul className="text-sm leading-relaxed opacity-90 space-y-2 mb-4">
-                 <li>• Do <strong>NOT</strong> switch tabs or windows</li>
-                 <li>• {MAX_WARNINGS} warnings = auto-submit</li>
-                 <li>• Your progress is saved in real-time</li>
-               </ul>
-               {warningCount > 0 && (
-                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-                   <span className="text-xs font-black uppercase tracking-widest">
-                     {warningCount}/{MAX_WARNINGS} Warnings Used
-                   </span>
-                 </div>
-               )}
+              <h4 className="font-black text-lg mb-2 flex items-center gap-2">
+                <ShieldAlert size={20} />
+                Exam Rules
+              </h4>
+              <ul className="text-sm leading-relaxed opacity-90 space-y-2 mb-4">
+                <li>• Do <strong>NOT</strong> switch tabs or windows</li>
+                <li>• {MAX_WARNINGS} warnings = auto-submit</li>
+                <li>• Your progress is saved in real-time</li>
+              </ul>
+              {warningCount > 0 && (
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+                  <span className="text-xs font-black uppercase tracking-widest">
+                    {warningCount}/{MAX_WARNINGS} Warnings Used
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>

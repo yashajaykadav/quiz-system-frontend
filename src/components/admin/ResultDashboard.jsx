@@ -25,87 +25,112 @@ const ResultsDashboard = () => {
         fetchResults();
     }, []);
 
-    // Helper calculations for Summary Cards
     const totalAttempts = results.length;
     const avgPercentage = totalAttempts > 0
         ? (results.reduce((acc, curr) => acc + curr.percentage, 0) / totalAttempts).toFixed(1)
         : 0;
 
     return (
-        <div className="space-y-8">
-            {/* --- SUMMARY CARDS --- */}
+        <div className="space-y-8 p-4 bg-[#eef2ff] min-h-screen font-sans text-black">
+            {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-8 bg-blue-600 rounded-[2.5rem] text-white shadow-xl shadow-blue-100">
-                    <p className="text-blue-100 font-bold text-xs uppercase tracking-widest">Total Submissions</p>
-                    <h3 className="text-4xl font-black mt-2">{totalAttempts}</h3>
+                {/* Primary Card */}
+                <div className="p-6 bg-[#3b82f6] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100 mb-1">
+                        Total Submissions
+                    </p>
+                    <h3 className="text-4xl font-black text-white italic tracking-tighter">
+                        {totalAttempts}
+                    </h3>
                 </div>
-                <div className="p-8 bg-white rounded-[2.5rem] border border-slate-200 shadow-sm">
-                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Class Average</p>
-                    <h3 className="text-4xl font-black mt-2 text-slate-900">{avgPercentage}%</h3>
+
+                {/* Secondary Card */}
+                <div className="p-6 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-1">
+                        Class Average
+                    </p>
+                    <h3 className="text-4xl font-black text-black">
+                        {avgPercentage}<span className="text-xl ml-1 text-[#3b82f6]">%</span>
+                    </h3>
                 </div>
             </div>
 
-            {/* --- RESULTS TABLE --- */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                        <tr>
-                            <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase">Student</th>
-                            <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase">Quiz & Date</th>
-                            <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase">Subject / Topic</th>
-                            <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase text-center">Score</th>
-                            <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase text-center">Percentage</th>
-                            <th className="px-6 py-5 text-xs font-black text-slate-400 uppercase text-right">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {loading ? (
-                            <tr><td colSpan="6" className="p-10 text-center text-slate-400 font-medium">Loading analysis...</td></tr>
-                        ) : results.length > 0 ? (
-                            results.map((res, idx) => (
-                                <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                    {/* NEW: Student Column */}
-                                    <td className="px-6 py-5">
-                                        <div className="font-bold text-slate-900">{res.studentName || 'Unknown Student'}</div>
-                                        <div className="text-xs text-slate-400">{res.studentEmail || 'N/A'}</div>
-                                    </td>
+            {/* Table Container */}
+            <div className="bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-[#dbeafe] border-b-2 border-black">
+                                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest border-r-2 border-black">Student</th>
+                                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest border-r-2 border-black">Quiz Details</th>
+                                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest border-r-2 border-black">Categorization</th>
+                                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-center border-r-2 border-black">Score</th>
+                                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-center border-r-2 border-black">%</th>
+                                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-right">Status</th>
+                            </tr>
+                        </thead>
 
-                                    <td className="px-6 py-5">
-                                        <div className="font-bold text-slate-700">{res.quizTitle}</div>
-                                        <div className="text-xs text-slate-400">{res.quizDate}</div>
-                                    </td>
-
-                                    <td className="px-6 py-5">
-                                        <span className="text-[10px] font-black bg-blue-50 px-2 py-1 rounded text-blue-600 uppercase mr-2 tracking-tighter">
-                                            {res.subjectName}
-                                        </span>
-                                        <span className="text-xs text-slate-500 font-medium">{res.topicName}</span>
-                                    </td>
-
-                                    <td className="px-6 py-5 text-center font-bold text-slate-700">
-                                        {res.obtainedMarks} <span className="text-slate-300">/</span> {res.totalMarks}
-                                    </td>
-
-                                    <td className="px-6 py-5 text-center">
-                                        <span className="font-black text-blue-600 text-lg">{res.percentage}%</span>
-                                    </td>
-
-                                    <td className="px-6 py-5 text-right">
-                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest
-                                            ${res.status === 'PASS' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                            {res.status}
-                                        </span>
+                        <tbody className="divide-y-2 divide-black">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="p-12 text-center font-bold uppercase tracking-widest text-gray-400">
+                                        Initializing Data...
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan="6" className="p-10 text-center text-slate-400 font-medium">No results found in the system.</td></tr>
-                        )}
-                    </tbody>
-                </table>
+                            ) : results.length > 0 ? (
+                                results.map((res, idx) => (
+                                    <tr key={idx} className="hover:bg-[#f0f9ff] transition-colors group">
+                                        <td className="px-4 py-4 border-r-2 border-black">
+                                            <div className="font-black text-sm uppercase tracking-tight">{res.studentName || 'Unknown'}</div>
+                                            <div className="text-[10px] font-bold text-gray-500 lowercase">{res.studentEmail}</div>
+                                        </td>
+
+                                        <td className="px-4 py-4 border-r-2 border-black">
+                                            <div className="font-bold text-sm">{res.quizTitle}</div>
+                                            <div className="text-[10px] text-gray-400 font-mono italic">{res.quizDate}</div>
+                                        </td>
+
+                                        <td className="px-4 py-4 border-r-2 border-black">
+                                            <div className="text-xs font-black uppercase">{res.subjectName}</div>
+                                            <div className="text-[10px] text-gray-500 tracking-tighter">{res.topicName}</div>
+                                        </td>
+
+                                        <td className="px-4 py-4 text-center font-mono font-bold text-sm border-r-2 border-black">
+                                            {res.obtainedMarks} <span className="text-gray-400">/</span> {res.totalMarks}
+                                        </td>
+
+                                        <td className="px-4 py-4 text-center border-r-2 border-black">
+                                            <span className="inline-block px-2 py-1 bg-black text-white text-xs font-black">
+                                                {res.percentage}%
+                                            </span>
+                                        </td>
+
+                                        <td className="px-4 py-4 text-right">
+                                            <span
+                                                className={`inline-block px-3 py-1 text-[10px] font-black uppercase border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${res.status === 'PASS'
+                                                    ? 'bg-[#bbf7d0] text-black'
+                                                    : 'bg-[#fecaca] text-black'
+                                                    }`}
+                                            >
+                                                {res.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="p-12 text-center font-bold uppercase text-gray-400">
+                                        Zero Records Found
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 };
+
 
 export default ResultsDashboard;
