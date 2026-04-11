@@ -12,6 +12,7 @@ const QuizAttempt = () => {
   const navigate = useNavigate();
 
   const [attempt, setAttempt] = useState(null);
+  const [quizMeta, setQuizMeta] = useState(null); // stores quiz display info from raw entity
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -66,11 +67,36 @@ const QuizAttempt = () => {
       const attemptResponse = await studentApi.startQuiz(quizId);
       const attemptData = attemptResponse.data;
       setAttempt(attemptData);
-      setQuestions(attemptData.quiz?.questions || []);
       setWarningCount(attemptData.warningCount || 0);
 
+      // Capture display info from the raw entity (startQuiz returns raw QuizAttempt)
+      if (attemptData.quiz) {
+        setQuizMeta({
+          title: attemptData.quiz.title,
+          subjectName: attemptData.quiz.subject?.name,
+          topicName: attemptData.quiz.topic?.name,
+          durationMinutes: attemptData.quiz.durationMinutes,
+        });
+      }
+
+      // Load student answers — each answer contains the full question object
       const answersResponse = await studentApi.getAttemptAnswers(attemptData.id);
-      setAnswers(answersResponse.data);
+      const answersData = answersResponse.data;
+      setAnswers(answersData);
+
+      // Derive the ordered question list from flat answer fields
+      const qs = answersData.map((ans) => ({
+        id: ans.questionId,
+        questionText: ans.questionText,
+        codeSnippet: ans.codeSnippet,
+        type: ans.type,
+        option1: ans.option1,
+        option2: ans.option2,
+        option3: ans.option3,
+        option4: ans.option4,
+        marks: ans.marks,
+      }));
+      setQuestions(qs);
     } catch (error) {
       alert(error.response?.data?.message || error.response?.data || 'Failed to start quiz');
       navigate('/student');
@@ -91,7 +117,7 @@ const QuizAttempt = () => {
       // Update local answers state
       setAnswers((prev) =>
         prev.map((ans) =>
-          ans.question.id === currentQuestion.id
+          ans.questionId === currentQuestion.id
             ? { ...ans, selectedOption: optionNumber, attempted: true }
             : ans
         )
@@ -124,7 +150,8 @@ const QuizAttempt = () => {
       alert('Quiz submitted successfully!');
       navigate('/student/results');
     } catch (error) {
-      alert('Failed to submit quiz');
+      const msg = error.response?.data?.message || error.response?.data || error.message || 'Failed to submit quiz';
+      alert(`Submit failed: ${msg}`);
     }
   };
 
@@ -137,8 +164,8 @@ const QuizAttempt = () => {
   };
 
   const getQuestionStatus = (index) => {
-    const answer = answers.find((ans) => ans.question.id === questions[index].id);
     if (index === currentQuestionIndex) return 'current';
+    const answer = answers.find((ans) => ans.questionId === questions[index]?.id);
     if (answer?.attempted) return 'attempted';
     return 'not-attempted';
   };
@@ -186,7 +213,7 @@ const QuizAttempt = () => {
 
   const currentQuestion = questions[currentQuestionIndex];
   if (!currentQuestion) return null;
-  const currentAnswer = answers.find((ans) => ans.question?.id === currentQuestion.id);
+  const currentAnswer = answers.find((ans) => ans.questionId === currentQuestion.id);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans relative">
@@ -281,19 +308,19 @@ const QuizAttempt = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200 uppercase font-black">
-              {attempt.quiz.subject?.name?.charAt(0) || 'Q'}
+              {quizMeta?.subjectName?.charAt(0) || 'Q'}
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                  {attempt.quiz.subject?.name}
+                  {quizMeta?.subjectName}
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
-                  • {attempt.quiz.topic?.name}
+                  • {quizMeta?.topicName}
                 </span>
               </div>
               <h1 className="text-2xl font-extrabold text-slate-900 leading-tight">
-                {attempt.quiz.title}
+                {quizMeta?.title}
               </h1>
             </div>
           </div>
@@ -301,7 +328,7 @@ const QuizAttempt = () => {
           <div className="flex items-center gap-6">
              <div className="h-10 w-[1px] bg-slate-200 hidden md:block"></div>
              <Timer
-              durationMinutes={attempt.quiz.durationMinutes}
+              durationMinutes={quizMeta?.durationMinutes}
               onTimeUp={handleTimeUp}
             />
           </div>
