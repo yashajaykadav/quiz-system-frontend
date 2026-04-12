@@ -11,183 +11,92 @@ const StudentManagement = () => {
         email: '',
         password: ''
     });
-
-    // ✅ PAGINATION STATE
-    const [currentPage, setCurrentPage] = useState(0);   // Spring uses 0-indexed pages
+    const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
-    const [pageSize, setPageSize] = useState(10);         // rows per page
-    const [sortBy, setSortBy] = useState('fullName');     // default sort field
-    const [sortDir, setSortDir] = useState('asc');        // asc or desc
-
-    // ✅ SEARCH STATE (optional but common with pagination)
+    const [pageSize, setPageSize] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // ✅ FETCH STUDENTS WITH PAGINATION PARAMS
-    const fetchStudents = async () => {
+    const fetchStudents = async (page = currentPage) => {
         try {
             setLoading(true);
-
-            // Build query parameters that Spring Boot expects
-            const params = {
-                page: currentPage,
-                size: pageSize,
-                sort: `${sortBy},${sortDir}`
-            };
-
-            // If you have a search endpoint
-            if (searchTerm.trim()) {
-                params.search = searchTerm.trim();
-            }
+            const params = { page, size: pageSize, sort: 'fullName,asc' };
+            if (searchTerm.trim()) params.search = searchTerm.trim();
 
             const res = await api.get('/admin/students', { params });
-
-            // ✅ Extract data from Spring Boot's Page response
             const pageData = res.data;
 
-            setStudents(Array.isArray(pageData.content) ? pageData.content : []);
-            setTotalPages(pageData.totalPages || 0);
-            setTotalElements(pageData.totalElements || 0);
-            // Sync current page in case backend corrects it
-            setCurrentPage(pageData.number || 0);
-
+            setStudents(pageData.content ?? []);
+            setTotalPages(pageData.totalPages ?? 0);
+            setTotalElements(pageData.totalElements ?? 0);
+            setCurrentPage(pageData.number ?? 0);
         } catch (err) {
             console.error("Error fetching students", err);
             setStudents([]);
-            setTotalPages(0);
-            setTotalElements(0);
         } finally {
             setLoading(false);
         }
     };
 
-    // ✅ Re-fetch when pagination/sort/search changes
     useEffect(() => {
         fetchStudents();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage, pageSize, sortBy, sortDir]);
+    }, [currentPage, pageSize]);
 
-    // ✅ Debounced search - reset to page 0 when searching
     useEffect(() => {
-        const delayDebounce = setTimeout(() => {
-            setCurrentPage(0); // reset to first page on new search
-            fetchStudents();
+        const delay = setTimeout(() => {
+            setCurrentPage(0);
+            fetchStudents(0);
         }, 400);
-
-        return () => clearTimeout(delayDebounce);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        return () => clearTimeout(delay);
     }, [searchTerm]);
 
-    // ✅ PAGINATION HANDLERS
-    const handleFirstPage = () => setCurrentPage(0);
-    const handlePrevPage = () => setCurrentPage(prev => Math.max(0, prev - 1));
-    const handleNextPage = () => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1));
-    const handleLastPage = () => setCurrentPage(totalPages - 1);
-    const handlePageClick = (pageNum) => setCurrentPage(pageNum);
-
-    const handlePageSizeChange = (newSize) => {
-        setPageSize(newSize);
-        setCurrentPage(0); // reset to first page when changing size
-    };
-
-    // ✅ SORT HANDLER
-    const handleSort = (field) => {
-        if (sortBy === field) {
-            // Toggle direction if same field
-            setSortDir(prev => (prev === 'asc' ? 'desc' : 'asc'));
-        } else {
-            setSortBy(field);
-            setSortDir('asc');
-        }
-        setCurrentPage(0); // reset to first page on sort change
-    };
-
-    // ✅ Sort indicator icon
-    const getSortIcon = (field) => {
-        if (sortBy !== field) return '↕';
-        return sortDir === 'asc' ? '↑' : '↓';
-    };
-
-    // ✅ Generate page numbers to display
-    const getPageNumbers = () => {
-        const pages = [];
-        const maxVisible = 5; // show max 5 page buttons
-
-        let startPage = Math.max(0, currentPage - Math.floor(maxVisible / 2));
-        let endPage = Math.min(totalPages - 1, startPage + maxVisible - 1);
-
-        // Adjust start if we're near the end
-        if (endPage - startPage < maxVisible - 1) {
-            startPage = Math.max(0, endPage - maxVisible + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pages.push(i);
-        }
-
-        return pages;
-    };
-
-    // ✅ ADD STUDENT
     const handleAddStudent = async (e) => {
         e.preventDefault();
         try {
             await api.post('/admin/students', newStudent);
             setShowAddModal(false);
-            fetchStudents();
             setNewStudent({ fullName: '', username: '', email: '', password: '' });
+            fetchStudents();
             alert("Student registered successfully!");
         } catch (err) {
-            alert(
-                "Error adding student: " +
-                (err.response?.data?.message || "Server Error")
-            );
+            alert("Error adding student: " + (err.response?.data?.message || "Server Error"));
         }
     };
 
-    // ✅ RESET PASSWORD
     const handleResetPassword = async (studentId) => {
         const newPass = prompt("Enter new password for student:");
         if (!newPass) return;
-
         try {
-            await api.patch(
-                `/admin/students/${studentId}/reset-password`,
-                newPass,
-                { headers: { 'Content-Type': 'text/plain' } }
-            );
+            await api.patch(`/admin/students/${studentId}/reset-password`, newPass, {
+                headers: { 'Content-Type': 'text/plain' }
+            });
             alert("Password updated successfully!");
-        } catch (err) {
+        } catch {
             alert("Failed to reset password.");
         }
     };
 
-    // ✅ TOGGLE STATUS
     const handleToggleStatus = async (studentId) => {
         try {
             await api.patch(`/admin/students/${studentId}/toggle-status`);
             fetchStudents();
-        } catch (err) {
+        } catch {
             alert("Failed to update status");
         }
     };
 
-    // ✅ Calculate display range
     const startEntry = totalElements === 0 ? 0 : currentPage * pageSize + 1;
     const endEntry = Math.min((currentPage + 1) * pageSize, totalElements);
 
     return (
         <div className="space-y-6">
 
-            {/* ═══════════ HEADER ═══════════ */}
+            {/* HEADER */}
             <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-800">
                     Student Directory
-                    <span className="text-sm font-normal text-gray-500 ml-2">
-                        ({totalElements} total)
-                    </span>
+                    <span className="text-sm font-normal text-gray-500 ml-2">({totalElements} total)</span>
                 </h2>
-
                 <button
                     onClick={() => setShowAddModal(true)}
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -196,136 +105,74 @@ const StudentManagement = () => {
                 </button>
             </div>
 
-            {/* ═══════════ SEARCH & PAGE SIZE ═══════════ */}
+            {/* SEARCH & PAGE SIZE */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                {/* Search Input */}
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search students..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9 pr-4 py-2 border rounded-lg w-64 
-                                   focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    />
-                    <svg
-                        className="absolute left-3 top-2.5 h-4 w-4 text-gray-400"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                    </svg>
-                </div>
-
-                {/* Page Size Selector */}
+                <input
+                    type="text"
+                    placeholder="Search students..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="px-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <label>Show</label>
                     <select
                         value={pageSize}
-                        onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                        className="border rounded px-2 py-1 focus:outline-none 
-                                   focus:ring-2 focus:ring-blue-300"
+                        onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(0); }}
+                        className="border rounded px-2 py-1"
                     >
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={20}>20</option>
-                        <option value={50}>50</option>
+                        {[5, 10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
                     <label>entries</label>
                 </div>
             </div>
 
-            {/* ═══════════ TABLE ═══════════ */}
-            <div className="bg-white border rounded shadow-sm overflow-x-auto">
+            {/* TABLE */}
+            <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-x-auto">
                 {loading ? (
-                    <div className="p-6 text-center text-gray-500">
-                        <div className="inline-block animate-spin rounded-full h-6 w-6 
-                                        border-b-2 border-blue-500 mr-2" />
-                        Loading...
+                    <div className="p-12 text-center">
+                        <div className="inline-block animate-spin h-10 w-10 border-[4px] border-black border-b-yellow-400 mr-4" />
+                        <span className="font-black text-2xl uppercase">Fetching Data...</span>
                     </div>
                 ) : (
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-100">
-                            <tr>
-                                {/* Sortable Headers */}
-                                <th
-                                    className="px-4 py-3 text-left cursor-pointer 
-                                               hover:bg-gray-200 select-none"
-                                    onClick={() => handleSort('fullName')}
-                                >
-                                    Full Name {getSortIcon('fullName')}
-                                </th>
-
-                                <th
-                                    className="px-4 py-3 text-left cursor-pointer 
-                                               hover:bg-gray-200 select-none"
-                                    onClick={() => handleSort('username')}
-                                >
-                                    Details {getSortIcon('username')}
-                                </th>
-
-                                <th
-                                    className="px-4 py-3 text-left cursor-pointer 
-                                               hover:bg-gray-200 select-none"
-                                    onClick={() => handleSort('active')}
-                                >
-                                    Status {getSortIcon('active')}
-                                </th>
-
-                                <th className="px-4 py-3 text-right">
-                                    Actions
-                                </th>
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-yellow-300 border-b-[4px] border-black">
+                                <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">Full Name</th>
+                                <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">Details</th>
+                                <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">Status</th>
+                                <th className="px-6 py-4 font-black uppercase text-sm text-right">Actions</th>
                             </tr>
                         </thead>
-
-                        <tbody>
-                            {students.length > 0 ? (
-                                students.map((student) => {
-                                    const sId = student.id || student._id;
-                                    return (
-                                        <tr key={sId} className="border-t hover:bg-gray-50">
-                                            <td className="px-4 py-3 font-medium">
-                                                {student.fullName}
-                                            </td>
-
-                                            <td className="px-4 py-3">
-                                                <div>{student.username}</div>
-                                                <div className="text-xs text-gray-500">
-                                                    {student.email}
-                                                </div>
-                                            </td>
-
-                                            <td className="px-4 py-3">
-                                                <button
-                                                    onClick={() => handleToggleStatus(sId)}
-                                                    className={`px-2 py-1 text-xs rounded ${student.active
-                                                            ? 'bg-green-100 text-green-700'
-                                                            : 'bg-red-100 text-red-700'
-                                                        }`}
-                                                >
-                                                    {student.active ? 'Active' : 'Blocked'}
-                                                </button>
-                                            </td>
-
-                                            <td className="px-4 py-3 text-right">
-                                                <button
-                                                    onClick={() => handleResetPassword(sId)}
-                                                    className="text-blue-500 hover:underline text-sm"
-                                                >
-                                                    Reset Password
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            ) : (
+                        <tbody className="divide-y-[4px] divide-black">
+                            {students.length > 0 ? students.map((student) => (
+                                <tr key={student.id} className="hover:bg-cyan-50 transition-colors">
+                                    <td className="px-6 py-4 font-bold border-r-[4px] border-black text-lg">{student.fullName}</td>
+                                    <td className="px-6 py-4 border-r-[4px] border-black">
+                                        <div className="font-black text-sm uppercase">{student.username}</div>
+                                        <div className="text-xs font-bold text-gray-600">{student.email}</div>
+                                    </td>
+                                    <td className="px-6 py-4 border-r-[4px] border-black">
+                                        <button
+                                            onClick={() => handleToggleStatus(student.id)}
+                                            className={`px-4 py-1 font-black uppercase border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all
+                                                ${student.active ? 'bg-lime-400' : 'bg-red-500 text-white'}`}
+                                        >
+                                            {student.active ? 'Active' : 'Blocked'}
+                                        </button>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <button
+                                            onClick={() => handleResetPassword(student.id)}
+                                            className="font-black uppercase text-xs border-2 border-black px-2 py-1 hover:bg-black hover:text-white transition-all"
+                                        >
+                                            Reset Password
+                                        </button>
+                                    </td>
+                                </tr>
+                            )) : (
                                 <tr>
-                                    <td
-                                        colSpan="4"
-                                        className="text-center py-6 text-gray-500"
-                                    >
+                                    <td colSpan="4" className="text-center py-12 font-black uppercase text-xl bg-gray-100">
                                         No students found
                                     </td>
                                 </tr>
@@ -335,147 +182,84 @@ const StudentManagement = () => {
                 )}
             </div>
 
-            {/* ═══════════ PAGINATION CONTROLS ═══════════ */}
-            {!loading && totalPages > 0 && (
-                <div className="flex flex-col sm:flex-row justify-between items-center 
-                                gap-3 text-sm text-gray-600">
-
-                    {/* Entry Info */}
-                    <div>
-                        Showing {startEntry} to {endEntry} of {totalElements} entries
-                    </div>
-
-                    {/* Page Buttons */}
-                    <div className="flex items-center gap-1">
-                        {/* First */}
+            {/* PAGINATION */}
+            {!loading && totalPages > 1 && (
+                <div className="flex justify-between items-center p-4 bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                    <span className="font-bold text-sm">
+                        Showing {startEntry}–{endEntry} of {totalElements}
+                    </span>
+                    <div className="flex items-center gap-2">
                         <button
-                            onClick={handleFirstPage}
+                            onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
                             disabled={currentPage === 0}
-                            className="px-2 py-1 border rounded hover:bg-gray-100 
-                                       disabled:opacity-40 disabled:cursor-not-allowed"
-                            title="First Page"
-                        >
-                            «
-                        </button>
-
-                        {/* Previous */}
-                        <button
-                            onClick={handlePrevPage}
-                            disabled={currentPage === 0}
-                            className="px-2 py-1 border rounded hover:bg-gray-100 
-                                       disabled:opacity-40 disabled:cursor-not-allowed"
-                            title="Previous Page"
+                            className="px-3 py-1 border-[3px] border-black font-black bg-white hover:bg-cyan-400 disabled:opacity-30"
                         >
                             ‹
                         </button>
-
-                        {/* Page Numbers */}
-                        {getPageNumbers().map((pageNum) => (
-                            <button
-                                key={pageNum}
-                                onClick={() => handlePageClick(pageNum)}
-                                className={`px-3 py-1 border rounded ${currentPage === pageNum
-                                        ? 'bg-blue-500 text-white border-blue-500'
-                                        : 'hover:bg-gray-100'
-                                    }`}
-                            >
-                                {pageNum + 1}  {/* Display 1-indexed to user */}
-                            </button>
-                        ))}
-
-                        {/* Next */}
+                        {Array.from({ length: totalPages }, (_, i) => i)
+                            .slice(Math.max(0, currentPage - 2), Math.min(totalPages, currentPage + 3))
+                            .map(pageNum => (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`px-3 py-1 border-[3px] border-black font-black transition-all
+                                        ${currentPage === pageNum ? 'bg-lime-400' : 'bg-white hover:bg-yellow-300'}`}
+                                >
+                                    {pageNum + 1}
+                                </button>
+                            ))}
                         <button
-                            onClick={handleNextPage}
+                            onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
                             disabled={currentPage >= totalPages - 1}
-                            className="px-2 py-1 border rounded hover:bg-gray-100 
-                                       disabled:opacity-40 disabled:cursor-not-allowed"
-                            title="Next Page"
+                            className="px-3 py-1 border-[3px] border-black font-black bg-white hover:bg-cyan-400 disabled:opacity-30"
                         >
                             ›
-                        </button>
-
-                        {/* Last */}
-                        <button
-                            onClick={handleLastPage}
-                            disabled={currentPage >= totalPages - 1}
-                            className="px-2 py-1 border rounded hover:bg-gray-100 
-                                       disabled:opacity-40 disabled:cursor-not-allowed"
-                            title="Last Page"
-                        >
-                            »
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* ═══════════ ADD STUDENT MODAL ═══════════ */}
+            {/* ADD STUDENT MODAL */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
                     <form
                         onSubmit={handleAddStudent}
-                        className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-3"
+                        className="bg-white border-[4px] border-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] w-full max-w-md space-y-4"
                     >
-                        <h3 className="text-lg font-semibold">Add Student</h3>
+                        <h3 className="text-2xl font-black uppercase border-b-[4px] border-black pb-2">
+                            Add New Student
+                        </h3>
 
-                        <input
-                            type="text"
-                            placeholder="Full Name"
-                            required
-                            className="w-full p-2 border rounded"
-                            value={newStudent.fullName}
-                            onChange={(e) =>
-                                setNewStudent({ ...newStudent, fullName: e.target.value })
-                            }
-                        />
+                        {[
+                            { placeholder: "Full Name", type: "text", field: 'fullName' },
+                            { placeholder: "Username", type: "text", field: 'username' },
+                            { placeholder: "Email", type: "email", field: 'email' },
+                            { placeholder: "Password", type: "password", field: 'password' },
+                        ].map(({ placeholder, type, field }) => (
+                            <input
+                                key={field}
+                                type={type}
+                                placeholder={placeholder}
+                                required
+                                value={newStudent[field]}
+                                onChange={(e) => setNewStudent({ ...newStudent, [field]: e.target.value })}
+                                className="w-full p-3 border-[3px] border-black font-bold focus:bg-yellow-200 outline-none"
+                            />
+                        ))}
 
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            required
-                            className="w-full p-2 border rounded"
-                            value={newStudent.username}
-                            onChange={(e) =>
-                                setNewStudent({ ...newStudent, username: e.target.value })
-                            }
-                        />
-
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            required
-                            className="w-full p-2 border rounded"
-                            value={newStudent.email}
-                            onChange={(e) =>
-                                setNewStudent({ ...newStudent, email: e.target.value })
-                            }
-                        />
-
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            required
-                            className="w-full p-2 border rounded"
-                            value={newStudent.password}
-                            onChange={(e) =>
-                                setNewStudent({ ...newStudent, password: e.target.value })
-                            }
-                        />
-
-                        <div className="flex gap-2 pt-2">
+                        <div className="flex gap-4 pt-2">
                             <button
                                 type="button"
                                 onClick={() => setShowAddModal(false)}
-                                className="flex-1 py-2 border rounded"
+                                className="flex-1 py-3 border-[3px] border-black font-black uppercase hover:bg-red-500 hover:text-white transition-colors"
                             >
                                 Cancel
                             </button>
-
                             <button
                                 type="submit"
-                                className="flex-1 py-2 bg-blue-500 text-white rounded 
-                                           hover:bg-blue-600"
+                                className="flex-1 py-3 bg-lime-400 border-[3px] border-black font-black uppercase hover:bg-lime-500 transition-colors"
                             >
-                                Save
+                                Save Student
                             </button>
                         </div>
                     </form>

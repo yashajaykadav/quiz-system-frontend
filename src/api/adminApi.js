@@ -9,7 +9,7 @@ export const adminApi = {
   // Topics
   createTopic: (data) => api.post('/admin/topics', data),
   getAllTopics: () => api.get('/admin/topics'),
-getTopicsBySubject: (subjectId) => api.get(`/admin/topics/subject/${subjectId}`),
+  getTopicsBySubject: (subjectId) => api.get(`/admin/topics/subject/${subjectId}`),
   deleteTopic: (id) => api.delete(`/admin/topics/${id}`),
 
   // Questions
@@ -22,4 +22,5 @@ getTopicsBySubject: (subjectId) => api.get(`/admin/topics/subject/${subjectId}`)
   // Quizzes
   createQuiz: (data) => api.post('/admin/quizzes', data),
   getAllQuizzes: () => api.get('/admin/quizzes'),
+  deleteQuiz: (id) => api.delete(`/admin/quizzes/${id}`),
 };

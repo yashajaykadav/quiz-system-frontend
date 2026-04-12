@@ -28,7 +28,7 @@ const Navbar = () => {
               Q
             </div>
             <span className="text-xl font-black uppercase italic tracking-tighter">
-              Skill<span className="text-[#3b82f6]">Master</span>
+              Quiz<span className="text-[#3b82f6]">Hub</span>
             </span>
           </div>
 

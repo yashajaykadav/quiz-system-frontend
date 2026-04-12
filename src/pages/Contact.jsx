@@ -41,24 +41,24 @@ const Contact = () => {
         <div className="min-h-screen bg-gray-100 flex flex-col">
             <Navbar />
 
-            <div className="flex-1 px-6 py-6">
+            <div className="flex-1 p-6 space-y-6">
 
                 {/* HEADER */}
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 className="text-2xl font-semibold text-gray-800">
-                            Contact Support
-                        </h1>
-                        <p className="text-sm text-gray-600">
-                            Get in touch with our support team
-                        </p>
-                    </div>
-
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-semibold text-gray-800">
+                        Contact Support
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            Get in touch with our team
+                        </span>
+                    </h2>
                     <button
                         onClick={() => navigate('/login')}
-                        className="flex items-center gap-2 bg-white border px-4 py-2 rounded-lg hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 border-[3px] border-black font-black text-xs uppercase
+                               bg-white hover:bg-yellow-300 transition-colors
+                               shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]
+                               active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                     >
-                        <ChevronLeft size={18} />
+                        <ChevronLeft size={16} strokeWidth={3} />
                         Back
                     </button>
                 </div>
@@ -66,146 +66,140 @@ const Contact = () => {
                 {/* MAIN GRID */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {/* LEFT SIDE - CONTACT INFO */}
-                    <div className="lg:col-span-1 space-y-6">
+                    {/* LEFT — INFO */}
+                    <div className="space-y-5">
 
-                        {/* Contact Card */}
-                        <div className="bg-white border rounded-lg shadow-sm p-6">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact Information</h3>
+                        {/* Contact Info Card */}
+                        <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6">
+                            <h3 className="font-black uppercase text-sm tracking-widest border-b-[4px] border-black pb-3 mb-5">
+                                Contact Information
+                            </h3>
 
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3">
-                                    <div className="bg-blue-50 p-2 rounded-full">
-                                        <Mail className="text-blue-600" size={18} />
+                                    <div className="border-[3px] border-black p-2 bg-yellow-300">
+                                        <Mail size={16} strokeWidth={3} />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Email</p>
-                                        <p className="text-sm font-medium text-gray-800">yashkadav52@gmail.com</p>
+                                        <p className="text-[10px] font-black uppercase text-gray-500">Email</p>
+                                        <p className="text-sm font-bold">yashkadav52@gmail.com</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-start gap-3">
-                                    <div className="bg-green-50 p-2 rounded-full">
-                                        <Phone className="text-green-600" size={18} />
+                                    <div className="border-[3px] border-black p-2 bg-lime-300">
+                                        <Phone size={16} strokeWidth={3} />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Phone</p>
-                                        <p className="text-sm font-medium text-gray-800">708814645</p>
+                                        <p className="text-[10px] font-black uppercase text-gray-500">Phone</p>
+                                        <p className="text-sm font-bold">708814645</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-start gap-3">
-                                    <div className="bg-purple-50 p-2 rounded-full">
-                                        <MessageSquare className="text-purple-600" size={18} />
+                                    <div className="border-[3px] border-black p-2 bg-cyan-300">
+                                        <MessageSquare size={16} strokeWidth={3} />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Support Hours</p>
-                                        <p className="text-sm font-medium text-gray-800">Mon - Fri, 9am - 5pm</p>
+                                        <p className="text-[10px] font-black uppercase text-gray-500">Support Hours</p>
+                                        <p className="text-sm font-bold">Mon – Fri, 9am – 5pm</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* FAQ Preview */}
-                        <div className="bg-white border rounded-lg shadow-sm p-6">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Answers</h3>
-
-                            <div className="space-y-3">
-                                <div className="border-b pb-2">
-                                    <p className="text-sm font-medium text-gray-800">How do I reset my password?</p>
-                                    <p className="text-xs text-gray-500 mt-1">Contact admin for password reset</p>
-                                </div>
-                                <div className="border-b pb-2">
-                                    <p className="text-sm font-medium text-gray-800">How do I report an issue?</p>
-                                    <p className="text-xs text-gray-500 mt-1">Use the form below or email us</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-gray-800">Can I change my username?</p>
-                                    <p className="text-xs text-gray-500 mt-1">No, usernames are permanent</p>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
 
-                    {/* RIGHT SIDE - CONTACT FORM */}
+                    {/* RIGHT — FORM */}
                     <div className="lg:col-span-2">
-
-                        <div className="bg-white border rounded-lg shadow-sm p-6">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-4">Send Us a Message</h3>
+                        <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 space-y-5">
+                            <h3 className="font-black uppercase text-sm tracking-widest border-b-[4px] border-black pb-3">
+                                Send Us a Message
+                            </h3>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
 
                                 {/* Name & Email */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                            Full Name
+                                        </label>
                                         <input
                                             type="text"
                                             name="name"
                                             value={formData.name}
                                             onChange={handleChange}
                                             required
-                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                                             placeholder="Your full name"
+                                            className="w-full px-4 py-2 border-[3px] border-black font-bold
+                                                   focus:outline-none focus:bg-yellow-50 transition-colors"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                            Email Address
+                                        </label>
                                         <input
                                             type="email"
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
                                             required
-                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            placeholder="Enter Email"
+                                            placeholder="your@email.com"
+                                            className="w-full px-4 py-2 border-[3px] border-black font-bold
+                                                   focus:outline-none focus:bg-yellow-50 transition-colors"
                                         />
                                     </div>
                                 </div>
 
                                 {/* Subject */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                        Subject
+                                    </label>
                                     <input
                                         type="text"
                                         name="subject"
                                         value={formData.subject}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Regarding quiz performance"
+                                        placeholder="Regarding quiz performance..."
+                                        className="w-full px-4 py-2 border-[3px] border-black font-bold
+                                               focus:outline-none focus:bg-yellow-50 transition-colors"
                                     />
                                 </div>
 
                                 {/* Message */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                        Message
+                                    </label>
                                     <textarea
                                         name="message"
                                         value={formData.message}
                                         onChange={handleChange}
                                         required
-                                        rows="5"
-                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        rows="6"
                                         placeholder="Type your message here..."
+                                        className="w-full px-4 py-3 border-[3px] border-black font-bold
+                                               focus:outline-none focus:bg-yellow-50 transition-colors resize-none"
                                     />
                                 </div>
 
-                                {/* Submit Button */}
+                                {/* Submit */}
                                 <button
                                     type="submit"
-                                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                                    className="flex items-center gap-2 px-6 py-3 bg-lime-400 border-[3px] border-black
+                                           font-black uppercase text-sm hover:bg-lime-500 transition-colors
+                                           shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                           active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                                 >
-                                    <Send size={18} />
+                                    <Send size={16} strokeWidth={3} />
                                     Send Message
                                 </button>
-
                             </form>
                         </div>
-
                     </div>
-
                 </div>
             </div>
         </div>

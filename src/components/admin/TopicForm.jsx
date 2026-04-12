@@ -49,127 +49,124 @@ const TopicForm = () => {
   };
 
   return (
-    <div className="p-6 bg-[#eef2ff] min-h-screen font-sans text-black">
-      {/* Header Section */}
-      <div className="mb-10">
-        <h2 className="text-3xl font-black uppercase tracking-tighter italic">
-          Manage <span className="text-[#3b82f6]">Topics</span>
+    <div className="space-y-6">
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Topic Management
+          <span className="text-sm font-normal text-gray-500 ml-2">
+            ({topics.length} total)
+          </span>
         </h2>
-        <div className="h-1.5 w-20 bg-black mt-1"></div>
       </div>
 
-      {/* Form Card */}
+      {/* FORM */}
       <form
         onSubmit={handleSubmit}
-        className="mb-12 p-8 bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6 max-w-2xl"
+        className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 space-y-4"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-gray-600">
-              Parent Subject
-            </label>
-            <select
-              value={formData.subjectId}
-              onChange={(e) =>
-                setFormData({ ...formData, subjectId: e.target.value })
-              }
-              className="w-full px-4 py-3 border-2 border-black bg-[#f8fafc] font-bold focus:outline-none focus:bg-[#dbeafe] transition-colors rounded-none appearance-none cursor-pointer"
-              required
-            >
-              <option value="">Select Asset</option>
-              {subjects.map((subject) => (
-                <option key={subject.id} value={subject.id}>
-                  {subject.name.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
+        <h3 className="font-black uppercase text-sm tracking-widest border-b-[4px] border-black pb-3">
+          Add New Topic
+        </h3>
 
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-gray-600">
-              Topic Name
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full px-4 py-3 border-2 border-black bg-[#f8fafc] font-bold focus:outline-none focus:bg-[#dbeafe] transition-colors rounded-none placeholder:text-gray-400"
-              placeholder="e.g., QUANTUM BASICS"
-              required
-            />
-          </div>
-        </div>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <select
+            value={formData.subjectId}
+            onChange={(e) => setFormData({ ...formData, subjectId: e.target.value })}
+            className="flex-1 px-4 py-2 border-[3px] border-black font-bold focus:outline-none focus:bg-yellow-50 transition-colors"
+            required
+          >
+            <option value="">Select Subject</option>
+            {subjects.map((subject) => (
+              <option key={subject.id} value={subject.id}>
+                {subject.name}
+              </option>
+            ))}
+          </select>
 
-        <div>
-          <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-gray-600">
-            Detailed Description
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            className="w-full px-4 py-3 border-2 border-black bg-[#f8fafc] font-bold focus:outline-none focus:bg-[#dbeafe] transition-colors rounded-none resize-none"
-            rows="3"
-            placeholder="Define topic scope..."
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="flex-1 px-4 py-2 border-[3px] border-black font-bold focus:outline-none focus:bg-yellow-50 transition-colors placeholder:text-gray-400"
+            placeholder="Topic name e.g. Quantum Basics"
+            required
           />
-        </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-[#3b82f6] text-white px-8 py-3 border-2 border-black font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50"
-        >
-          {loading ? 'SYNCING...' : 'Deploy Topic'}
-        </button>
+          <input
+            type="text"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            className="flex-1 px-4 py-2 border-[3px] border-black font-bold focus:outline-none focus:bg-yellow-50 transition-colors placeholder:text-gray-400"
+            placeholder="Short description..."
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2 bg-lime-400 border-[3px] border-black font-black uppercase hover:bg-lime-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all disabled:opacity-50 whitespace-nowrap"
+          >
+            {loading ? 'Saving...' : '+ Add Topic'}
+          </button>
+        </div>
       </form>
 
-      {/* LIST SECTION */}
-      <div className="max-w-2xl">
-        <div className="flex items-center gap-4 mb-6">
-          <h3 className="text-xs font-black uppercase tracking-[0.3em] text-gray-500">
-            Existing Topics
-          </h3>
-          <div className="flex-1 h-px bg-gray-300"></div>
-        </div>
-
-        <div className="space-y-4">
-          {topics.map((topic) => (
-            <div
-              key={topic.id}
-              className="flex justify-between items-center p-5 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group hover:bg-[#f0f9ff] transition-colors"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="bg-black text-white text-[9px] px-1.5 py-0.5 font-bold uppercase italic">
+      {/* TABLE */}
+      <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-yellow-300 border-b-[4px] border-black">
+              <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">
+                Subject
+              </th>
+              <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">
+                Topic Name
+              </th>
+              <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">
+                Description
+              </th>
+              <th className="px-6 py-4 font-black uppercase text-sm text-right">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y-[4px] divide-black">
+            {topics.length > 0 ? topics.map((topic) => (
+              <tr key={topic.id} className="hover:bg-cyan-50 transition-colors">
+                <td className="px-6 py-4 border-r-[4px] border-black">
+                  <span className="px-2 py-1 bg-black text-white text-xs font-black uppercase">
                     {topic.subjectName}
                   </span>
-                  <h4 className="font-black uppercase text-sm tracking-tight">{topic.name}</h4>
-                </div>
-                <p className="text-gray-500 text-[11px] font-bold max-w-md">
-                  {topic.description || 'No supplementary data provided.'}
-                </p>
-              </div>
-
-              <button
-                onClick={() => handleDelete(topic.id)}
-                className="bg-white hover:bg-red-500 hover:text-white p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-              >
-                <Trash2 size={18} strokeWidth={3} />
-              </button>
-            </div>
-          ))}
-
-          {topics.length === 0 && (
-            <div className="p-10 border-2 border-dashed border-gray-400 text-center bg-white/50">
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                Zero Topics Found in Repository
-              </p>
-            </div>
-          )}
-        </div>
+                </td>
+                <td className="px-6 py-4 border-r-[4px] border-black font-black text-sm uppercase">
+                  {topic.name}
+                </td>
+                <td className="px-6 py-4 border-r-[4px] border-black text-sm font-bold text-gray-600">
+                  {topic.description || (
+                    <span className="italic text-gray-400 font-normal">
+                      No description
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <button
+                    onClick={() => handleDelete(topic.id)}
+                    className="font-black uppercase text-xs border-2 border-black px-2 py-1 hover:bg-red-500 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  >
+                    <Trash2 size={16} strokeWidth={3} />
+                  </button>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan="4" className="text-center py-12 font-black uppercase text-xl bg-gray-100">
+                  No topics found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

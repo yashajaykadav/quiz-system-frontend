@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '../../api/adminApi';
+import { Trash2 } from 'lucide-react';
 
 const QuestionForm = () => {
   const [formData, setFormData] = useState({
@@ -108,192 +109,177 @@ const QuestionForm = () => {
       correctOption: 1,
     }));
   };
-
   return (
-    <div className="p-8 bg-[#eef2ff] min-h-screen font-sans text-black">
-      {/* TOAST - Floating sticker style */}
+    <div className="space-y-6">
+
+      {/* TOAST */}
       {toast.visible && (
-        <div
-          className={`fixed top-10 right-10 px-6 py-3 border-4 border-black font-black uppercase tracking-widest text-xs z-[100] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] translate-y-0 animate-bounce ${toast.type === 'success' ? 'bg-[#22c55e] text-white' : 'bg-[#ef4444] text-white'
-            }`}
-        >
+        <div className={`fixed top-6 right-6 px-5 py-3 border-[3px] border-black font-black uppercase text-xs z-[100] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]
+                ${toast.type === 'success' ? 'bg-lime-400 text-black' : 'bg-red-500 text-white'}`}>
           {toast.message}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Question Management
+          <span className="text-sm font-normal text-gray-500 ml-2">
+            ({questions.length} total)
+          </span>
+        </h2>
+      </div>
 
-        {/* FORM SECTION */}
-        <div className="lg:col-span-2 bg-white border-2 border-black p-8 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
-          <div className="mb-8">
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic">
-              Add <span className="text-[#3b82f6]">Question</span>
-            </h2>
-            <div className="h-1.5 w-16 bg-black mt-1"></div>
-          </div>
+      {/* FORM CARD */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 space-y-5"
+      >
+        <h3 className="font-black uppercase text-sm tracking-widest border-b-[4px] border-black pb-3">
+          Add New Question
+        </h3>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* SUBJECT + TOPIC - Blueprint layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col">
-                <label className="text-[10px] font-black uppercase tracking-widest mb-2 text-gray-500">Classification</label>
-                <select
-                  value={formData.subjectId}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      subjectId: e.target.value,
-                      topicId: '',
-                    })
-                  }
-                  className="p-3 border-2 border-black bg-[#f8fafc] font-bold focus:bg-[#dbeafe] outline-none rounded-none cursor-pointer"
-                  required
-                >
-                  <option value="">Select Subject</option>
-                  {subjects.map((s) => (
-                    <option key={s.id || s._id} value={s.id || s._id}>
-                      {s.name.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        {/* SUBJECT + TOPIC */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <select
+            value={formData.subjectId}
+            onChange={(e) => setFormData({ ...formData, subjectId: e.target.value, topicId: '' })}
+            className="flex-1 px-4 py-2 border-[3px] border-black font-bold focus:outline-none focus:bg-yellow-50 transition-colors"
+            required
+          >
+            <option value="">Select Subject</option>
+            {subjects.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
 
-              <div className="flex flex-col">
-                <label className="text-[10px] font-black uppercase tracking-widest mb-2 text-gray-500">Specific Topic</label>
-                <select
-                  value={formData.topicId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, topicId: e.target.value })
-                  }
-                  className="p-3 border-2 border-black bg-[#f8fafc] font-bold focus:bg-[#dbeafe] outline-none rounded-none disabled:opacity-30 cursor-pointer"
-                  disabled={!formData.subjectId}
-                  required
-                >
-                  <option value="">Select Topic</option>
-                  {topics.map((t) => (
-                    <option key={t.id || t._id} value={t.id || t._id}>
-                      {t.name.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* QUESTION TEXT */}
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest mb-2 text-gray-500">Interrogative Content</label>
-              <textarea
-                placeholder="What is the root cause of..."
-                value={formData.questionText}
-                onChange={(e) =>
-                  setFormData({ ...formData, questionText: e.target.value })
-                }
-                className="w-full p-4 border-2 border-black font-bold focus:bg-[#dbeafe] outline-none rounded-none min-h-[100px]"
-                required
-              />
-            </div>
-
-            {/* CODE SNIPPET */}
-            <div className="bg-gray-50 border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <label className="text-[10px] font-black uppercase tracking-widest mb-2 block">Optional Code Snippet</label>
-              <textarea
-                placeholder="// Paste technical context here..."
-                value={formData.codeSnippet}
-                onChange={(e) =>
-                  setFormData({ ...formData, codeSnippet: e.target.value })
-                }
-                className="w-full p-3 border-2 border-black font-mono text-sm bg-black text-green-400 focus:outline-none rounded-none"
-                rows="4"
-              />
-            </div>
-
-            {/* OPTIONS GRID */}
-            <div>
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-gray-600">
-                Response Configuration (Select Truth)
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[1, 2, 3, 4].map((num) => {
-                  const selected = formData.correctOption === num;
-
-                  return (
-                    <div
-                      key={num}
-                      onClick={() => setFormData({ ...formData, correctOption: num })}
-                      className={`group flex items-center gap-3 p-3 border-2 border-black cursor-pointer transition-all ${selected
-                          ? 'bg-[#bbf7d0] shadow-none translate-x-[2px] translate-y-[2px]'
-                          : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#f0f9ff]'
-                        }`}
-                    >
-                      <div className={`w-6 h-6 border-2 border-black flex items-center justify-center font-black text-xs ${selected ? 'bg-black text-white' : 'bg-white text-black'}`}>
-                        {num}
-                      </div>
-
-                      <input
-                        type="text"
-                        placeholder={`Option ${num}`}
-                        value={formData[`option${num}`]}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            [`option${num}`]: e.target.value,
-                          })
-                        }
-                        className="w-full bg-transparent text-sm font-bold focus:outline-none placeholder:text-gray-400"
-                        required
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#3b82f6] text-white py-4 border-2 border-black text-sm font-black uppercase tracking-[0.3em] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] active:bg-black transition-all disabled:opacity-50"
-            >
-              {loading ? 'Transmitting Data...' : 'Confirm & Deploy Question'}
-            </button>
-          </form>
+          <select
+            value={formData.topicId}
+            onChange={(e) => setFormData({ ...formData, topicId: e.target.value })}
+            className="flex-1 px-4 py-2 border-[3px] border-black font-bold focus:outline-none focus:bg-yellow-50 transition-colors disabled:opacity-40"
+            disabled={!formData.subjectId}
+            required
+          >
+            <option value="">Select Topic</option>
+            {topics.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
         </div>
 
-        {/* LIST SECTION - Sidebar style */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <h3 className="text-xs font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-4">
-              Recently Cached ({questions.length})
-            </h3>
+        {/* QUESTION TEXT */}
+        <textarea
+          placeholder="Enter question text..."
+          value={formData.questionText}
+          onChange={(e) => setFormData({ ...formData, questionText: e.target.value })}
+          className="w-full px-4 py-3 border-[3px] border-black font-bold focus:outline-none focus:bg-yellow-50 transition-colors resize-none"
+          rows="3"
+          required
+        />
 
-            <div className="max-h-[600px] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-              {questions.length === 0 ? (
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 text-center py-10 italic">
-                  No local records found
-                </p>
-              ) : (
-                questions.map((q) => (
-                  <div
-                    key={q.id || q._id}
-                    className="p-3 border-2 border-black bg-[#f8fafc] hover:bg-[#dbeafe] transition-colors cursor-default"
+        {/* CODE SNIPPET */}
+        <textarea
+          placeholder="// Optional code snippet..."
+          value={formData.codeSnippet}
+          onChange={(e) => setFormData({ ...formData, codeSnippet: e.target.value })}
+          className="w-full px-4 py-3 border-[3px] border-black font-mono text-sm bg-black text-green-400 focus:outline-none resize-none"
+          rows="3"
+        />
+
+        {/* OPTIONS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map((num) => {
+            const selected = formData.correctOption === num;
+            return (
+              <div
+                key={num}
+                onClick={() => setFormData({ ...formData, correctOption: num })}
+                className={`flex items-center gap-3 px-4 py-2 border-[3px] border-black cursor-pointer transition-all
+                                ${selected ? 'bg-lime-400 shadow-none' : 'bg-white hover:bg-cyan-50 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'}`}
+              >
+                <span className={`w-6 h-6 flex items-center justify-center border-2 border-black font-black text-xs flex-shrink-0
+                                ${selected ? 'bg-black text-white' : 'bg-white'}`}>
+                  {num}
+                </span>
+                <input
+                  type="text"
+                  placeholder={`Option ${num}`}
+                  value={formData[`option${num}`]}
+                  onChange={(e) => setFormData({ ...formData, [`option${num}`]: e.target.value })}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full bg-transparent font-bold text-sm focus:outline-none placeholder:text-gray-400"
+                  required
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-2 bg-lime-400 border-[3px] border-black font-black uppercase hover:bg-lime-500 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all disabled:opacity-50"
+        >
+          {loading ? 'Saving...' : '+ Add Question'}
+        </button>
+      </form>
+
+      {/* QUESTIONS TABLE */}
+      <div className="bg-white border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-yellow-300 border-b-[4px] border-black">
+              <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">
+                Question
+              </th>
+              <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">
+                Subject / Topic
+              </th>
+              <th className="px-6 py-4 font-black uppercase text-sm border-r-[4px] border-black">
+                Code
+              </th>
+              <th className="px-6 py-4 font-black uppercase text-sm text-right">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y-[4px] divide-black">
+            {questions.length > 0 ? questions.map((q) => (
+              <tr key={q.id} className="hover:bg-cyan-50 transition-colors">
+                <td className="px-6 py-4 font-bold border-r-[4px] border-black max-w-xs">
+                  <span className="line-clamp-2 text-sm">{q.questionText}</span>
+                </td>
+                <td className="px-6 py-4 border-r-[4px] border-black">
+                  <div className="font-black text-sm uppercase">{q.subjectName}</div>
+                  <div className="text-xs font-bold text-gray-500">{q.topicName}</div>
+                </td>
+                <td className="px-6 py-4 border-r-[4px] border-black">
+                  {q.codeSnippet ? (
+                    <span className="px-2 py-1 bg-black text-green-400 text-[10px] font-black uppercase">
+                      Yes
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs font-bold">—</span>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <button
+                    onClick={() => handleDelete(q.id)}
+                    className="font-black uppercase text-xs border-2 border-black px-2 py-1 hover:bg-red-500 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                   >
-                    <div className="text-[11px] font-black uppercase leading-tight line-clamp-2">
-                      {q.questionText}
-                    </div>
-
-                    {q.codeSnippet && (
-                      <div className="inline-block mt-2 px-1.5 py-0.5 bg-black text-[#3b82f6] text-[8px] font-black uppercase tracking-tighter">
-                        Has_Code_Snippet
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-
+                    <Trash2 size={16} strokeWidth={3} />
+                  </button>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan="4" className="text-center py-12 font-black uppercase text-xl bg-gray-100">
+                  No questions found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
