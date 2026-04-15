@@ -8,14 +8,25 @@ A responsive frontend application for an online quiz platform built using React 
 
 > Store images inside a `/screenshots` folder in the root directory.
 
+### Admin Dashboard
+![Admin Page](./screenshots/admindash1.png)
+![Admin Page](./screenshots/admindash2.png)
+
 ### Student Dashboard
-![Student Dashboard](./screenshots/dashboard.png)
+![Student Dashboard](./screenshots/stud_dash1.png)
 
 ### Quiz Interface
 ![Quiz Interface](./screenshots/quiz-ui.png)
 
 ### Results Page
 ![Results Page](./screenshots/results.png)
+
+### Contact Page
+![Contact Page](./screenshots/contact_page.png)
+
+### Warning Ui Page
+![Warning Dialog](./screenshots/warning.png)
+![Auto Submit Warning Dialog](./screenshots/auto_submit_warning.png)
 
 ---
 
