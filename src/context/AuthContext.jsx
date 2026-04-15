@@ -8,11 +8,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    // FIX 1: Look for 'accessToken' instead of 'token'
+    const token = localStorage.getItem('accessToken');
     const userData = localStorage.getItem('user');
 
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error("Failed to parse user data", e);
+        logout(); // Clean up if data is corrupted
+      }
     }
     setLoading(false);
   }, []);
@@ -20,20 +26,27 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authApi.login(credentials);
-      const { token, username, role, fullName } = response.data;
+      const { accessToken, refreshToken, username, role, fullName } = response.data;
 
-      localStorage.setItem('token', token);
+      // Saving both tokens with the new names
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', JSON.stringify({ username, role, fullName }));
 
       setUser({ username, role, fullName });
       return { success: true, role };
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || 'Login failed' };
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Invalid Credentials'
+      };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    // FIX 2: Clear all new keys
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     setUser(null);
   };

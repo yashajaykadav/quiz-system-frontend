@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import quizLogo from '../assets/logo.png';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -34,12 +35,9 @@ const Login = () => {
       <div className="w-full max-w-sm bg-white border-2 border-black p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
 
         <div className="mb-10 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#3b82f6] border-2 border-black text-white font-bold text-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-4">
-            Q
+          <div className="logo mb-4 flex justify-center">
+            <img src={quizLogo} alt="QuizHub Logo" className="w-16 h-16 object-contain" />
           </div>
-          <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-            Quiz<span className="text-[#3b82f6]">Hub</span>
-          </h1>
           <div className="h-1 w-12 bg-black mx-auto mt-2"></div>
         </div>
 
@@ -79,7 +77,8 @@ const Login = () => {
           {error && (
             <div className="bg-[#fee2e2] border-2 border-black p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
               <p className="text-[10px] font-bold text-red-600 uppercase tracking-tight">
-                System Error: {error}
+                {/* Use String() to be safe if error is an object */}
+                System Error: {typeof error === 'string' ? error : 'Authentication Failed'}
               </p>
             </div>
           )}

@@ -23,4 +23,7 @@ export const adminApi = {
   createQuiz: (data) => api.post('/admin/quizzes', data),
   getAllQuizzes: () => api.get('/admin/quizzes'),
   deleteQuiz: (id) => api.delete(`/admin/quizzes/${id}`),
+
+  // Results  ← ADD THIS
+  getAllResults: () => api.get('/admin/results/all'),
 };

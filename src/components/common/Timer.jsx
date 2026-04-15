@@ -1,70 +1,89 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Clock } from 'lucide-react';
 
-const Timer = ({ durationMinutes, onTimeUp }) => {
-  const [timeLeft, setTimeLeft] = useState(durationMinutes * 60);
-  const [warning, setWarning] = useState('');
+/**
+ * Props:
+ *  durationMinutes  – number  (total quiz duration)
+ *  startedAt        – string  (ISO timestamp when attempt started, from backend)
+ *  onTimeUp         – () => void
+ */
+const Timer = ({ durationMinutes, startedAt, onTimeUp }) => {
+  const totalSeconds = durationMinutes * 60;
 
-  // ✅ Single interval (fixed)
+  // ── Calculate remaining time from wall clock ───────────────────────────
+  // This means refreshing the page does NOT reset the timer.
+  const calcTimeLeft = () => {
+    if (!startedAt) return totalSeconds;
+
+    const elapsedSeconds = Math.floor(
+      (Date.now() - new Date(startedAt).getTime()) / 1000
+    );
+    return Math.max(totalSeconds - elapsedSeconds, 0);
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calcTimeLeft);
+  const [warning, setWarning] = useState('');
+  const onTimeUpRef = useRef(onTimeUp);
+
+  // Keep ref fresh so interval closure never goes stale
+  useEffect(() => { onTimeUpRef.current = onTimeUp; }, [onTimeUp]);
+
+  // ── Tick every second ──────────────────────────────────────────────────
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
+    // Already expired on mount (e.g. refreshed after time ran out)
+    if (calcTimeLeft() <= 0) {
+      onTimeUpRef.current?.();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const remaining = calcTimeLeft();
+      setTimeLeft(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        onTimeUpRef.current?.();
+      }
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startedAt, totalSeconds]);   // re-init only if these change
 
-  // ✅ Time logic
+  // ── Warning banners ────────────────────────────────────────────────────
   useEffect(() => {
-    if (timeLeft <= 0) {
-      onTimeUp();
-    }
+    if (timeLeft === 300) setWarning('⚡ Only 5 minutes left!');
+    if (timeLeft === 60) setWarning('🔴 Last 1 minute!');
+  }, [timeLeft]);
 
-    // 🔥 warnings
-    if (timeLeft === 300) {
-      setWarning('Only 5 minutes left!');
-    }
-
-    if (timeLeft === 60) {
-      setWarning('Last 1 minute!');
-    }
-  }, [timeLeft, onTimeUp]);
-
-  // 🔥 Tab switch detection (killer feature)
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden) {
-        alert("Warning: Do not switch tabs during exam!");
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, []);
-
+  // ── Display ────────────────────────────────────────────────────────────
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
-  const getColorClass = () => {
-    if (timeLeft <= 60) return 'text-red-600';
-    if (timeLeft <= 300) return 'text-orange-600';
-    return 'text-green-600';
-  };
+  const colorClass =
+    timeLeft <= 60 ? 'text-red-600 animate-pulse' :
+      timeLeft <= 300 ? 'text-orange-500' :
+        'text-green-600';
+
+  const bgClass =
+    timeLeft <= 60 ? 'bg-red-50 border-red-500' :
+      timeLeft <= 300 ? 'bg-orange-50 border-orange-400' :
+        'bg-white border-black';
 
   return (
-    <div>
-      {/* Timer */}
-      <div className={`flex items-center gap-2 text-xl font-semibold ${getColorClass()}`}>
-        <Clock size={24} />
-        <span>
+    <div className="flex flex-col items-end gap-1">
+      {/* Clock display */}
+      <div className={`flex items-center gap-2 px-3 py-1 border-4 ${bgClass}`}>
+        <Clock size={20} className={colorClass} />
+        <span className={`text-xl font-black tabular-nums ${colorClass}`}>
           {String(minutes).padStart(2, '0')}:
           {String(seconds).padStart(2, '0')}
         </span>
       </div>
 
-      {/* Warning */}
+      {/* Inline warning — no alert() */}
       {warning && (
-        <p className="text-sm text-red-500 mt-1">
+        <p className="text-xs font-black text-red-600 uppercase tracking-widest animate-pulse">
           {warning}
         </p>
       )}
