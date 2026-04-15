@@ -143,20 +143,8 @@ Currently manual testing is used. Future improvements may include unit and integ
 - Add timer-based quizzes  
 - Improve accessibility (ARIA support)  
 - Add dark mode support  
-- Optimize performance with lazy loading  
 
----
-
-## 🖼️ How to Add Screenshots
-
-1. Create a folder named `screenshots` in project root  
-2. Add images:
-   - `dashboard.png`
-   - `quiz-ui.png`
-   - `results.png`  
-3. Commit and push to GitHub  
-
----
+------
 
 ## 🤝 Contribution
 
