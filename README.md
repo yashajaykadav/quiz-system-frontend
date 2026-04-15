@@ -1,16 +1,158 @@
-# React + Vite
+# Quiz System Frontend (React + Tailwind)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive frontend application for an online quiz platform built using React and Tailwind CSS. It provides a smooth quiz-taking experience with real-time interaction, secure authentication, and basic anti-cheating features.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 📸 Screenshots
 
-## React Compiler
+> Store images inside a `/screenshots` folder in the root directory.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Student Dashboard
+![Student Dashboard](./screenshots/dashboard.png)
 
-## Expanding the ESLint configuration
+### Quiz Interface
+![Quiz Interface](./screenshots/quiz-ui.png)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Results Page
+![Results Page](./screenshots/results.png)
+
+---
+
+## 📌 Overview
+
+This frontend is designed to work with the Spring Boot Quiz Backend API. It allows students to attempt quizzes, track performance, and interact with a secure and responsive interface.
+
+---
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
+| :--- | :--- |
+| Library | React 18 |
+| Styling | Tailwind CSS |
+| Routing | React Router DOM v6 |
+| Icons | Lucide React |
+| API Client | Axios |
+| Build Tool | Vite |
+| State Management | React Hooks (useState, useEffect, useContext) |
+
+---
+
+## 🌟 Features
+
+### Dashboard
+- View available, upcoming, and completed quizzes  
+- Dynamic filtering based on quiz status  
+
+### Quiz System
+- One question at a time interface  
+- Real-time navigation between questions  
+- Automatic submission after completion  
+
+### Anti-Cheat Mechanism
+- Detects tab switching or window focus loss  
+- Displays warnings to user  
+- Auto-submits quiz after 3 warnings  
+
+### Authentication
+- JWT-based login system  
+- Tokens stored securely  
+- Axios interceptors for API requests  
+
+### UI & UX
+- Responsive design (mobile + desktop)  
+- Clean and consistent layout  
+- Fast loading with Vite  
+
+---
+
+## 📂 Folder Structure
+
+```
+src/
+├── api/            # Axios setup and API calls
+├── components/     # Reusable UI components
+├── pages/          # Application pages
+├── context/        # Global state (Auth, Quiz)
+└── assets/         # Images and styles
+```
+
+---
+
+## 🌐 Backend Integration
+
+This frontend connects to the backend API:
+
+```
+http://localhost:8081/api
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- Node.js (v18+)
+- npm or yarn
+
+### 2. Environment Setup
+
+Create a `.env` file:
+
+```env
+VITE_API_BASE_URL=http://localhost:8081/api
+```
+
+### 3. Installation & Run
+
+```bash
+git clone https://github.com/yashajaykadav/quiz-system-frontend.git
+cd quiz-system-frontend
+npm install
+npm run dev
+```
+
+App will run at:
+```
+http://localhost:5173
+```
+
+---
+
+## 🧪 Testing
+
+Currently manual testing is used. Future improvements may include unit and integration testing.
+
+---
+
+## 🚧 Future Improvements
+
+- Add Redux or Zustand for better state management  
+- Add timer-based quizzes  
+- Improve accessibility (ARIA support)  
+- Add dark mode support  
+- Optimize performance with lazy loading  
+
+---
+
+## 🖼️ How to Add Screenshots
+
+1. Create a folder named `screenshots` in project root  
+2. Add images:
+   - `dashboard.png`
+   - `quiz-ui.png`
+   - `results.png`  
+3. Commit and push to GitHub  
+
+---
+
+## 🤝 Contribution
+
+Feel free to fork the project and submit pull requests for improvements.
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
